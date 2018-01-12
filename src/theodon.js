@@ -5,6 +5,8 @@ import BABYLON from "babylonjs";
 import TheodonHud from "./hud.js";
 import Editor from "./editor.js";
 import ScriptManager from "./scripts.js";
+import {Actors} from "./actors.js";
+import Textures from "./textures.js";
 
 let TheodonApp = class {
     
@@ -12,6 +14,7 @@ let TheodonApp = class {
         this.instanceId = instanceId;
         this.renderTarget = renderTarget;
         this.store = null;
+        this._pickedActors = [];
     }
     
     // INIT APP BY SETTING UP STORAGE
@@ -55,12 +58,6 @@ let TheodonApp = class {
     
         // create a basic light, aiming 0,1,0 - meaning, to the sky
         this.light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0,1,0), this.scene);
-    
-        // create a built-in "sphere" shape; 
-        this.sphere = BABYLON.MeshBuilder.CreateSphere('sphere', {segments:16, diameter:2}, this.scene);
-    
-        // move the sphere upward 1/2 of its height
-        this.sphere.position.y = 1;
         
         // Manage Scripts
         
@@ -74,6 +71,10 @@ let TheodonApp = class {
         
         this.hud = new TheodonHud(this);
         
+        // Actors
+        
+        this.actors = new Actors(this);
+        
         // Render Loop
     
         let scene = this.scene;
@@ -81,12 +82,20 @@ let TheodonApp = class {
             scene.render();
         });
         
+        // Textures
+        
+        this.textures = new Textures(this);
+        
         // Run World onLoad
         
-        let _func = Function;
-        this.fnOnLoad = new _func("name","user",this.worldProfile.script.onLoad);
-        this.fnOnLoad(this.worldProfile.name,this.store.userProfile);
+        this.scripts.runWhenLoaded("World/On Load");
         
+    }
+    
+    get pickedActor() {
+        if(this._pickedActors.length) {
+            return this._pickedActors[0];
+        }
     }
 };
 

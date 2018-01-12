@@ -1,5 +1,5 @@
 import firebase from "firebase";
-import 'firebase/firestore'
+import 'firebase/firestore';
 import co from "co";
 
 
@@ -117,7 +117,7 @@ let Store = class {
     
     // ADD/SAVE WORLD SCRIPT
     
-    saveWorldScript(path,code, sid) {
+    saveWorldScript(path, code, sid) {
         // GET DB
         
         let db = this.app.firestore();
@@ -143,9 +143,12 @@ let Store = class {
         }
         
         return co(function *(){
-            yield scriptRef.set(script);
-            script._id = scriptRef.id;
-            return script;
+            try {
+                yield scriptRef.set(script);
+                return true;
+            } catch(e) {
+                return false;
+            }
         });
     }
     
@@ -189,7 +192,83 @@ let Store = class {
             yield docRef.set(update,{merge:true});
         });
     }
+    
+    saveActor(aid,instance) {
+        console.log("SAVING:",aid,instance)
+        // GET DB
         
+        let db = this.app.firestore();
+        let actorsRef = db.collection("actors");
+        instance.wid = this.worldId;
+        return co(function *(){
+            yield actorsRef.doc(aid).set(instance);
+        });
+    }
+    
+    savePlacement(aid,placement) {
+        // GET DB
+        
+        let db = this.app.firestore();
+        let actorsRef = db.collection("placements");
+        placement.wid = this.worldId;
+        return co(function *(){
+            yield actorsRef.doc(aid).set(placement);
+        });
+    }
+        
+    // WATCH ACTORS
+    
+    watchActors(onChange,onRemove) {
+        
+        // WATCH SCRIPTS
+        
+        let db = this.app.firestore();
+        db.collection("actors").where("wid", "==", this.worldId)
+        .onSnapshot(function(snapshot) {
+            snapshot.docChanges.forEach(function(change) {
+
+                let actorDef = change.doc.data();
+                actorDef._id = change.doc.id;
+                
+                if (change.type === "added") {
+                    onChange(actorDef);
+                }
+                if (change.type === "modified") {
+                    onChange(actorDef);
+                }
+                if (change.type === "removed") {
+                    onRemove(actorDef);
+                }
+            });
+        });
+    }
+    
+    // WATCH PLACEMENTS
+    
+    watchPlacements(onChange,onRemove) {
+        
+        // WATCH SCRIPTS
+        
+        let db = this.app.firestore();
+        db.collection("placements").where("wid", "==", this.worldId)
+        .onSnapshot(function(snapshot) {
+            snapshot.docChanges.forEach(function(change) {
+
+                let placementDef = change.doc.data();
+                placementDef._id = change.doc.id;
+                
+                if (change.type === "added") {
+                    onChange(placementDef);
+                }
+                if (change.type === "modified") {
+                    onChange(placementDef);
+                }
+                if (change.type === "removed") {
+                    onRemove(placementDef);
+                }
+            });
+        });
+    }
 };
 
 export default Store;

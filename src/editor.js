@@ -55,6 +55,7 @@ let Editor = class {
         this.inputPath.onkeydown = this.pathChanged;
         this.inputPath.onblur = this.pathChanged;
         this.inputPath.setAttribute("style","margin-left:20px");
+        this.inputPath.value = path;
         this.menu.appendChild(this.inputPath);
         
         // CREATE EDITOR CONTAINER
