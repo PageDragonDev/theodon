@@ -41,6 +41,7 @@ let ScriptManager = class {
         
         let _Function = Function;
         let decoratedScript = "co(function *(){" + script.code + "\ndone();});";
+        decoratedScript = decoratedScript.replace(/texture\(/,"yield texture(");
         
         script.fn = new _Function("done","co","BABYLON","scene","primitive","color","picked","texture",decoratedScript);
         

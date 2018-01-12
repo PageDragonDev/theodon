@@ -56,7 +56,7 @@ let TheodonHud = class {
     
         // ADD NEW SCRIPT
         
-        var newScript = BABYLON.GUI.Button.CreateSimpleButton("btnProps", "New Script");
+        var newScript = BABYLON.GUI.Button.CreateSimpleButton("btnNewScript", "New Script");
         newScript.width = "150px";
         newScript.height = "40px";
         newScript.color = "white";
@@ -68,6 +68,23 @@ let TheodonHud = class {
         newScript.onPointerUpObservable.add(this.newWorldScript);
         
         this.advancedTexture.addControl(newScript);
+        
+         // ADD PROPS
+        
+        if(this.app.pickedActor) {
+            var props = BABYLON.GUI.Button.CreateSimpleButton("btnProps", "Properties");
+            props.width = "150px";
+            props.height = "40px";
+            props.color = "white";
+            props.cornerRadius = 20;
+            props.background = "green";
+            props.fontSize = 20;
+            props.thickness = 1;
+            props.top = "-15.6%";
+            props.onPointerUpObservable.add(()=>{this.showActorHUD(this.app.pickedActor)});
+            
+            this.advancedTexture.addControl(props);
+        }
         
         this.showWorldScriptBranch();
         

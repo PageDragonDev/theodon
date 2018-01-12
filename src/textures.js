@@ -11,22 +11,25 @@ let Textures = class {
     
     getTexture(path) {
         
-        // DO WE ALREADY HAVE THIS TEXTURE?
-        
-        let texture = this.texturesById[path];
-        
-        if(texture) {
-           return texture; 
-        }
-        
-        // CREATE TEXTURE
-        
-        texture = new BABYLON.Texture(path,this.app.scene);
-        this.texturesById[path] = texture;
-        
-        return texture;
+        return new Promise((resolve, reject) => {
+            // DO WE ALREADY HAVE THIS TEXTURE?
+            
+            let texture = this.texturesById[path];
+            
+            if(texture) {
+                resolve(texture);
+                return; 
+            }
+            
+            // CREATE TEXTURE
+            
+            texture = new BABYLON.Texture(path,this.app.scene,false,false,BABYLON.Texture.NEAREST_SAMPLINGMODE,()=>{
+                console.log("Texture Loaded")
+                resolve(texture);
+            });
+            this.texturesById[path] = texture;
+            
+        });
     }
-    
-    
 };
 export default Textures;

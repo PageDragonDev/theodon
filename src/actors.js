@@ -102,6 +102,7 @@ let Actor = class {
     // INITIALIZE ACTOR WITH JSON DEF... BUT SKIP POSITION, ORIENTATION, AND SCALE
     
     init(def) {
+        console.log("INIT")
         this._id = def._id;
         this.primitive = def.primitive;
         this.type = def.type;
@@ -179,6 +180,8 @@ let Actor = class {
                 instance.primitive = _this.primitive;
                 instance.name = _this.name?_this.name:"";
 
+                // MATERIAL
+                
                 if(_this.diffuseColor) {
                     instance.diffuseColor = colorToObj(_this.diffuseColor);
                 }
@@ -192,25 +195,42 @@ let Actor = class {
                     instance.ambientColor = colorToObj(_this.ambientColor);
                 }
                 
-                if(_this.diffuseTexture) {
-                    let textureDef = {
-                        "name": _this.diffuseTexture.name,
-                        "level": _this.diffuseTexture.level,
-                        "hasAlpha": _this.diffuseTexture.hasAlpha,
-                        "getAlphaFromRGB": _this.diffuseTexture.getAlphaFromRGB,
-                        "coordinatesMode": _this.diffuseTexture.coordinatesMode,
-                        "uOffset": _this.diffuseTexture.uOffset,
-                        "vOffset": _this.diffuseTexture.vOffset,
-                        "uScale": _this.diffuseTexture.uScale,
-                        "vScale": _this.diffuseTexture.vScale,
-                        "uAng": _this.diffuseTexture.uAng,
-                        "vAng": _this.diffuseTexture.vAng,
-                        "wAng": _this.diffuseTexture.wAng,
-                        "wrapU": _this.diffuseTexture.wrapU,
-                        "wrapV": _this.diffuseTexture.wrapV,
-                        "coordinatesIndex": _this.diffuseTexture.coordinatesIndex
+                let createTexture = (t) => {
+                    return {
+                        "name": t.name,
+                        "level": t.level,
+                        "hasAlpha": t.hasAlpha,
+                        "getAlphaFromRGB": t.getAlphaFromRGB,
+                        "coordinatesMode": t.coordinatesMode,
+                        "uOffset": t.uOffset,
+                        "vOffset": t.vOffset,
+                        "uScale": t.uScale,
+                        "vScale": t.vScale,
+                        "uAng": t.uAng,
+                        "vAng": t.vAng,
+                        "wAng": t.wAng,
+                        "wrapU": t.wrapU,
+                        "wrapV": t.wrapV,
+                        "coordinatesIndex": t.coordinatesIndex
                     };
-                    instance.diffuseTexture = textureDef;
+                };
+                
+                // TEXTURE
+                
+                if(_this.diffuseTexture) {
+                    instance.diffuseTexture = createTexture(_this.diffuseTexture);
+                }
+                
+                if(_this.specularTexture) {
+                    instance.specularTexture = createTexture(_this.specularTexture);
+                }
+                
+                if(_this.emissiveTexture) {
+                    instance.emissiveTexture = createTexture(_this.emissiveTexture);
+                }
+                
+                if(_this.ambientTexture) {
+                    instance.ambientTexture = createTexture(_this.ambientTexture);
                 }
                 
                 return yield _this.app.store.saveActor(_this._id,instance);
@@ -238,7 +258,7 @@ let Actor = class {
         let _this = this;
         return co(function *(){
             if(_this.hasChanges) {
-                _this.app.actors.add(_this);
+                // _this.app.actors.add(_this);
                 yield _this.save();
                 _this.hasChanges = false;
             }
@@ -253,71 +273,91 @@ let Actor = class {
     // CREATE MESH FROM PRIMITIVE OR FILE
     
     create() {
-        if(this.created) {
-            
-            // TO DO: DO SOME UPDATING TO HANDLE REMOTE CHANGES
-            
-            return;
-        }
-        
-        if(this.type == "primitive" && this.primitive) {
-            let fn = BABYLON.MeshBuilder[this.primitive[0]];
-            if(!fn) {
-                console.error("Unable to build with",this.primitive[0]);
-                return;
+        let _this = this;
+        return co(function *(){
+            let initHide = false;
+            if(_this.type == "primitive" && _this.primitive) {
+                if(!_this.created) {
+                    
+                    let fn = BABYLON.MeshBuilder[_this.primitive[0]];
+                    if(!fn) {
+                        console.error("Unable to build with",_this.primitive[0]);
+                        return;
+                    }
+                    
+                    let args = [];
+                    for(let i = 1; i < _this.primitive.length;i++) {
+                        args.push(_this.primitive[i]);
+                    }
+                    
+                    _this._mesh = fn.apply(null,args);
+                    _this.created = true;
+                    _this._mesh.isVisible = false; // TEMP HIDE
+                    initHide = true; // SO WE CAN UNHIDE
+                    
+                    if(_this.position) {
+                        _this._mesh.position = _this.position;
+                    }
+                    if(_this.rotation) {
+                        _this._mesh.rotation = _this.rotation;
+                    }
+                    if(_this.scaling) {
+                        _this._mesh.scaling = _this.scaling;
+                    }
+                    if(_this._name) {
+                        _this._mesh.name = _this._name;
+                    }
+                }
+                
+                // MATERIAL
+                
+                _this._mesh.material = new BABYLON.StandardMaterial("material", _this.app.scene);
+                if(_this.proxy.diffuseColor) {
+                    _this._mesh.material.diffuseColor = _this.proxy.diffuseColor;
+                }
+                if(_this.proxy.specularColor) {
+                    _this._mesh.material.specularColor = _this.proxy.specularColor;
+                }
+                if(_this.proxy.emissiveColor) {
+                    _this._mesh.material.emissiveColor = _this.proxy.emissiveColor;
+                }
+                if(_this.proxy.ambientColor) {
+                    _this._mesh.material.ambientColor = _this.proxy.ambientColor;
+                }
+                
+                // TEXTURE
+                
+                if(_this.proxy.diffuseTexture) {
+                    _this._mesh.material.diffuseTexture = yield _this.app.textures.getTexture(_this.proxy.diffuseTexture.name);
+                }
+                
+                if(_this.proxy.emissiveTexture) {
+                    _this._mesh.material.emissiveTexture = yield _this.app.textures.getTexture(_this.proxy.emissiveTexture.name);
+                }
+                
+                if(_this.proxy.specularTexture) {
+                    _this._mesh.material.specularTexture = yield _this.app.textures.getTexture(_this.proxy.specularTexture.name);
+                }
+                
+                if(_this.proxy.ambientTexture) {
+                    _this._mesh.material.ambientTexture = yield _this.app.textures.getTexture(_this.proxy.ambientTexture.name);
+                }
+                
+                // SETUP FOR PICKING
+                
+                _this._mesh.isPickable = true;
+                _this._mesh.actionManager = new BABYLON.ActionManager(_this.app.scene);
+                _this._mesh.actionManager.registerAction(
+                    new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, _this.picked)
+                );
+                
+                if(initHide) {
+                    _this._mesh.isVisible = true;
+                }
+                
+                return _this._mesh;
             }
-            let args = [];
-            for(let i = 1; i < this.primitive.length;i++) {
-                args.push(this.primitive[i]);
-            }
-            
-            this._mesh = fn.apply(null,args);
-            this.created = true;
-            if(this.position) {
-                this._mesh.position = this.position;
-            }
-            if(this.rotation) {
-                this._mesh.rotation = this.rotation;
-            }
-            if(this.scaling) {
-                this._mesh.scaling = this.scaling;
-            }
-            if(this._name) {
-                this._mesh.name = this._name;
-            }
-            
-            // MATERIAL
-            
-            this._mesh.material = new BABYLON.StandardMaterial("material", this.app.scene);
-            if(this.proxy.diffuseColor) {
-                this._mesh.material.diffuseColor = this.proxy.diffuseColor;
-            }
-            if(this.proxy.specularColor) {
-                this._mesh.material.specularColor = this.proxy.specularColor;
-            }
-            if(this.proxy.emissiveColor) {
-                this._mesh.material.emissiveColor = this.proxy.emissiveColor;
-            }
-            if(this.proxy.ambientColor) {
-                this._mesh.material.ambientColor = this.proxy.ambientColor;
-            }
-            
-            // TEXTURE
-            
-            if(this.proxy.diffuseTexture) {
-                this._mesh.material.diffuseTexture = this.app.textures.getTexture(this.proxy.diffuseTexture.name);
-            }
-            
-            // SETUP FOR PICKING
-            
-            this._mesh.isPickable = true;
-            this._mesh.actionManager = new BABYLON.ActionManager(this.app.scene);
-            this._mesh.actionManager.registerAction(
-                new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, this.picked)
-            );
-            
-            return this._mesh;
-        }
+        });
     }
     
     picked(evt) {
@@ -426,6 +466,33 @@ let Actor = class {
     
     set diffuseTexture(t) {
         this.mesh.material.diffuseTexture = t;
+        this.hasChanges = true;
+    }
+    
+    get specularTexture() {
+        return this.mesh.material.specularTexture;
+    }
+    
+    set specularTexture(t) {
+        this.mesh.material.specularTexture = t;
+        this.hasChanges = true;
+    }
+    
+    get ambientTexture() {
+        return this.mesh.material.ambientTexture;
+    }
+    
+    set ambientTexture(t) {
+        this.mesh.material.ambientTexture = t;
+        this.hasChanges = true;
+    }
+    
+    get emissiveTexture() {
+        return this.mesh.material.emissiveTexture;
+    }
+    
+    set emissiveTexture(t) {
+        this.mesh.material.emissiveTexture = t;
         this.hasChanges = true;
     }
     
