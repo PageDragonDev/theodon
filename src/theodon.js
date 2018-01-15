@@ -7,6 +7,7 @@ import Editor from "./editor.js";
 import ScriptManager from "./scripts.js";
 import {Actors} from "./actors.js";
 import Textures from "./textures.js";
+import TWEEN from "tween.js";
 
 let TheodonApp = class {
     
@@ -80,6 +81,7 @@ let TheodonApp = class {
         let scene = this.scene;
         this.engine.runRenderLoop(function() {
             scene.render();
+            TWEEN.update();
         });
         
         // Textures

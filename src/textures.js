@@ -24,7 +24,6 @@ let Textures = class {
             // CREATE TEXTURE
             
             texture = new BABYLON.Texture(path,this.app.scene,false,false,BABYLON.Texture.NEAREST_SAMPLINGMODE,()=>{
-                console.log("Texture Loaded")
                 resolve(texture);
             });
             this.texturesById[path] = texture;

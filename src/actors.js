@@ -1,6 +1,8 @@
 import BABYLON from "babylonjs";
 import uuidv1 from "uuid/v1";
 import co from "co";
+import _ from "lodash";
+import TWEEN from "tween.js";
 
 let Actors = class {
     constructor(app) {
@@ -33,6 +35,15 @@ let Actors = class {
                 // WAIT ON ACTOR
                 this.waitOn[placement._id] = placement;
             }
+        });
+        
+        // WATCH WAYPOINTS
+        
+        this.app.store.watchWaypoints((waypoint)=>{
+            let actor = this.actorsById[waypoint.aid];
+            if(actor) {
+                actor.updateWaypoint(waypoint);
+            } 
         });
     }
     
@@ -75,6 +86,41 @@ let Actors = class {
 };
 exports.Actors = Actors;
 
+// WAYPOINTED VECTOR3
+
+let WayPointVector = class {
+    
+    constructor(actor,prop){
+        this.actor = actor;
+        this.prop = prop;
+    }
+    
+    get x() {
+        return this.prop.x;
+    }
+    get y() {
+        return this.prop.y;
+    }
+    get z() {
+        return this.prop.z;
+    }
+    
+    set x(x) {
+        this.prop.x = parseFloat(x);
+        this.actor.saveWaypoint();
+    }
+    set y(y) {
+        this.prop.y = parseFloat(y);
+        this.actor.saveWaypoint();
+    }
+    set z(z) {
+        this.prop.z = parseFloat(z);
+        this.actor.saveWaypoint();
+    }
+    
+    
+};
+
 // ACTOR
 
 let Actor = class {
@@ -85,7 +131,10 @@ let Actor = class {
         this._id = uuidv1();
         this.created = false;
         this.picked = this.picked.bind(this);
-        this.proxy = {name:"",material:{}};
+        this.proxy = {name:"",material:{},position:{x:0,y:0,z:0},rotation:{x:0,y:0,z:0},scaling:{x:1,y:1,z:1}};
+        this.saveWaypoint = _.throttle(this.saveWaypoint.bind(this),1000,{leading:true});
+        this.savePlacement = _.debounce(this.savePlacement.bind(this),5000);
+        this.lastUpdated = 0;
         
         if(def) {
             this.init(def);
@@ -102,7 +151,7 @@ let Actor = class {
     // INITIALIZE ACTOR WITH JSON DEF... BUT SKIP POSITION, ORIENTATION, AND SCALE
     
     init(def) {
-        console.log("INIT")
+        
         this._id = def._id;
         this.primitive = def.primitive;
         this.type = def.type;
@@ -136,25 +185,105 @@ let Actor = class {
     // TRANSFORM ACTOR TO NEW POSITION, ORIENTATION, AND SCALE
     
     updatePlacement(def) {
+        if(!def.time) {
+            return;
+        }
+        if(this.placed) {
+            return;
+        }
+        this.placed = true;
+        
+        // DISCARD OLD UPDATES
+        
+        let time = def.time.getTime();
+        if(time < this.lastUpdated) {
+            return;
+        }
+        this.lastUpdated = time;
+
         if(def.position) {
-            this._position = new BABYLON.Vector3(def.position.x,def.position.y,def.position.z);
             if(this._mesh) {
-                this._mesh.position = this._position;
+                this._mesh.position = new BABYLON.Vector3(def.position.x,def.position.y,def.position.z);
             }
+            this.proxy.position.x = this._mesh.position.x;
+            this.proxy.position.y = this._mesh.position.y;
+            this.proxy.position.z = this._mesh.position.z;
         }
         
         if(def.rotation) {
-            this._rotation = new BABYLON.Vector3(def.rotation.x,def.rotation.y,def.rotation.z);
             if(this._mesh) {
-                this._mesh.rotation = this._rotation;
+                this._mesh.rotation = new BABYLON.Vector3(def.rotation.x,def.rotation.y,def.rotation.z);
+            }
+            this.proxy.rotation.x = this._mesh.rotation.x;
+            this.proxy.rotation.y = this._mesh.rotation.y;
+            this.proxy.rotation.z = this._mesh.rotation.z;
+        }
+        
+        if(def.scaling) {
+            if(this._mesh) {
+                this._mesh.scaling = new BABYLON.Vector3(def.scaling.x,def.scaling.y,def.scaling.z);
+            }
+            this.proxy.scaling.x = this._mesh.scaling.x;
+            this.proxy.scaling.y = this._mesh.scaling.y;
+            this.proxy.scaling.z = this._mesh.scaling.z;
+        }
+    }
+    
+    // TRANSFORM ACTOR TO NEW POSITION, ORIENTATION, AND SCALE
+    
+    updateWaypoint(def) {
+        if(!def.time) {
+            return;
+        }
+        
+        // DISCARD OLD UPDATES
+        
+        let time = def.time.getTime();
+        if(time < this.lastUpdated) {
+            return;
+        }
+        this.lastUpdated = time;
+        let timeDiff = new Date().getTime() - time;
+
+        if(def.position) {
+            if(this._mesh) {
+                new TWEEN.Tween(this._mesh.position)
+    				.to(new BABYLON.Vector3(def.position.x,def.position.y,def.position.z), timeDiff)
+    				.onUpdate(()=>{
+    				    this.proxy.position.x = this._mesh.position.x;
+                        this.proxy.position.y = this._mesh.position.y;
+                        this.proxy.position.z = this._mesh.position.z;
+    				})
+    				.start();
+            }
+            
+        }
+        
+        if(def.rotation) {
+            if(this._mesh) {
+                new TWEEN.Tween(this._mesh.rotation)
+    				.to(new BABYLON.Vector3(def.rotation.x,def.rotation.y,def.rotation.z), timeDiff)
+    				.onUpdate(()=>{
+    				    this.proxy.rotation.x = this._mesh.rotation.x;
+                        this.proxy.rotation.y = this._mesh.rotation.y;
+                        this.proxy.rotation.z = this._mesh.rotation.z;
+    				})
+    				.start();
             }
         }
         
         if(def.scaling) {
-            this._scaling = new BABYLON.Vector3(def.scaling.x,def.scaling.y,def.scaling.z);
             if(this._mesh) {
-                this._mesh.scaling = this._scaling;
+                new TWEEN.Tween(this._mesh.scaling)
+    				.to(new BABYLON.Vector3(def.scaling.x,def.scaling.y,def.scaling.z), timeDiff)
+    				.onUpdate(()=>{
+    				    this.proxy.scaling.x = this._mesh.scaling.x;
+                        this.proxy.scaling.y = this._mesh.scaling.y;
+                        this.proxy.scaling.z = this._mesh.scaling.z;
+    				})
+    				.start();
             }
+            
         }
     }
 
@@ -241,17 +370,27 @@ let Actor = class {
     
     savePlacement() {
         let placement = {};
-        let _this = this;
         
-        return co(function *(){
-            if(_this.type == "primitive") {
-                placement.position = {x:_this.position.x,y:_this.position.y,z:_this.position.z};
-                placement.rotation = {x:_this.rotation.x,y:_this.rotation.y,z:_this.rotation.z};
-                placement.scaling = {x:_this.scaling.x,y:_this.scaling.y,z:_this.scaling.z};
-                return yield _this.app.store.savePlacement(_this._id,placement);
-                
-            }
-        });
+        placement.position = {x:this.proxy.position.x,y:this.proxy.position.y,z:this.proxy.position.z};
+        placement.rotation = {x:this.proxy.rotation.x,y:this.proxy.rotation.y,z:this.proxy.rotation.z};
+        placement.scaling = {x:this.proxy.scaling.x,y:this.proxy.scaling.y,z:this.proxy.scaling.z};
+        this.app.store.savePlacement(this,placement);
+    }
+    
+    // THROTTLED CREATION OF WAYPOINTS
+    
+    saveWaypoint() {
+        
+        let waypoint = {};
+        
+        waypoint.position = {x:this.proxy.position.x,y:this.proxy.position.y,z:this.proxy.position.z};
+        waypoint.rotation = {x:this.proxy.rotation.x,y:this.proxy.rotation.y,z:this.proxy.rotation.z};
+        waypoint.scaling = {x:this.proxy.scaling.x,y:this.proxy.scaling.y,z:this.proxy.scaling.z};
+        this.app.store.saveWaypoint(this,waypoint);
+        
+        // ALSO SAVE PLACEMENT
+        
+        this.savePlacement();
     }
     
     done() {
@@ -262,17 +401,13 @@ let Actor = class {
                 yield _this.save();
                 _this.hasChanges = false;
             }
-        
-            if(_this.hasPlacementChanges) {
-                yield _this.savePlacement();
-                _this.hasPlacementChanges = false;
-            }
         });
     }
     
     // CREATE MESH FROM PRIMITIVE OR FILE
     
     create() {
+
         let _this = this;
         return co(function *(){
             let initHide = false;
@@ -291,19 +426,11 @@ let Actor = class {
                     }
                     
                     _this._mesh = fn.apply(null,args);
+                    
                     _this.created = true;
                     _this._mesh.isVisible = false; // TEMP HIDE
                     initHide = true; // SO WE CAN UNHIDE
                     
-                    if(_this.position) {
-                        _this._mesh.position = _this.position;
-                    }
-                    if(_this.rotation) {
-                        _this._mesh.rotation = _this.rotation;
-                    }
-                    if(_this.scaling) {
-                        _this._mesh.scaling = _this.scaling;
-                    }
                     if(_this._name) {
                         _this._mesh.name = _this._name;
                     }
@@ -361,7 +488,7 @@ let Actor = class {
     }
     
     picked(evt) {
-        console.log("PICKED",evt)
+        //console.log("PICKED",evt)
         
         this.app._pickedActors = [this];
         //this.app.hud.showActorHUD(this);
@@ -386,34 +513,49 @@ let Actor = class {
         this.hasChanges = true;
     }
     
+    // PLACVEMENT PROPS ARE WRAPPED IN WAYPOINT VECTORS TO UPDATE WAYPOINTS
+    
     set position(p) {
-  
-        this.mesh.position = p;
-        this.hasPlacementChanges = true;
+        this.proxy.position = p;
+        this.posWP = null;
+        this.saveWaypoint();
     }
     
     get position() {
-        return this.mesh.position;
+        if(!this.posWP) {
+            this.posWP = new WayPointVector(this,this.proxy.position);
+        }
+        return this.posWP;
     }
     
     set rotation(r) {
 
-        this.mesh.rotation = r;
-        this.hasPlacementChanges = true;
+        this.proxy.rotation = r;
+        this.rotWP = null;
+        this.saveWaypoint();
     }
     
     get rotation() {
-        return this.mesh.rotation;
+        
+        if(!this.rotWP) {
+            this.rotWP = new WayPointVector(this,this.proxy.rotation);
+        }
+        return this.rotWP;
     }
     
     set scaling(s) {
 
-        this.mesh.scaling = s;
-        this.hasPlacementChanges = true;
+        this.proxy.scaling = s;
+        this.sclWP = null;
+        this.saveWaypoint();
     }
     
     get scaling() {
-        return this.mesh.scaling;
+
+        if(!this.sclWP) {
+            this.sclWP = new WayPointVector(this,this.proxy.scaling);
+        }
+        return this.sclWP;
     }
     
     // MATERIAL

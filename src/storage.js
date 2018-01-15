@@ -18,6 +18,7 @@ let Store = class {
         this.worldId = target.dataset["world"];
         this.app = firebase.initializeApp(this.config,instanceId);
         this.profile = null;
+        
     }
   
     init() {
@@ -194,7 +195,7 @@ let Store = class {
     }
     
     saveActor(aid,instance) {
-        console.log("SAVING:",aid,instance)
+        
         // GET DB
         
         let db = this.app.firestore();
@@ -205,15 +206,43 @@ let Store = class {
         });
     }
     
-    savePlacement(aid,placement) {
+    // CALC ZONE
+    
+    getZone(p) {
+        return {x:Math.floor(p.x/10),y:Math.floor(p.y/10),z:Math.floor(p.z/10)};
+    }
+    
+    // SAVE A FIXED PLACEMENT
+    
+    savePlacement(actor,placement) {
+
         // GET DB
         
         let db = this.app.firestore();
         let actorsRef = db.collection("placements");
         placement.wid = this.worldId;
+        placement.time = firebase.firestore.FieldValue.serverTimestamp();
+        placement.zone = this.getZone(placement.position);
+
         return co(function *(){
-            yield actorsRef.doc(aid).set(placement);
+            yield actorsRef.doc(actor.id).set(placement);
         });
+    }
+    
+    // SAVE A WAYPOINT
+    
+    saveWaypoint(actor,waypoint) {
+
+        // GET DB
+        
+        let db = this.app.firestore();
+        let actorsRef = db.collection("waypoints");
+        waypoint.wid = this.worldId;
+        waypoint.aid = actor.id;
+        waypoint.time = firebase.firestore.FieldValue.serverTimestamp();
+        waypoint.zone = this.getZone(waypoint.position);
+        
+        actorsRef.add(waypoint);
     }
         
     // WATCH ACTORS
@@ -265,6 +294,33 @@ let Store = class {
                 }
                 if (change.type === "removed") {
                     onRemove(placementDef);
+                }
+            });
+        });
+    }
+    
+    // WATCH WAYPOINT
+    
+    watchWaypoints(onChange,onRemove) {
+        
+        // WATCH SCRIPTS
+        
+        let db = this.app.firestore();
+        db.collection("waypoints").where("wid", "==", this.worldId)
+        .onSnapshot(function(snapshot) {
+            snapshot.docChanges.forEach(function(change) {
+
+                let waypointDef = change.doc.data();
+                waypointDef._id = change.doc.id;
+                
+                if (change.type === "added") {
+                    onChange(waypointDef);
+                }
+                if (change.type === "modified") {
+                    onChange(waypointDef);
+                }
+                if (change.type === "removed") {
+                    onRemove(waypointDef);
                 }
             });
         });
