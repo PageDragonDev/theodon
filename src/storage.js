@@ -84,7 +84,7 @@ let Store = class {
             if(store.worldProfile) {
                 store.worldProfile.id = store.worldId;
             }
-            store.profile = profile;
+            store._user = profile;
     
         });
     }
@@ -148,15 +148,24 @@ let Store = class {
                 yield scriptRef.set(script);
                 return true;
             } catch(e) {
+                console.error(e);
                 return false;
             }
         });
     }
     
+    // REMOVE SCRIPT
+    
+    removeWorldScript(script) {
+        let db = this.app.firestore();
+        let scriptsRef = db.collection("scripts").doc(script._id);
+        scriptsRef.delete();
+    }
+    
     // GETTER FOR USER PROFILE
     
-    get userProfile() {
-        return this.profile;
+    get user() {
+        return this._user;
     }
     
     // SAVE COLLECTION/OBJECT VALUE

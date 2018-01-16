@@ -42,7 +42,7 @@ let TheodonHud = class {
         // HIDE HUD IN CASE IT"S SHOWING
         
         this.hideHUD();
-
+        
         // GUI PLANE
         
         this.hudPlane = BABYLON.Mesh.CreatePlane("hudPlane", 2);
@@ -111,13 +111,15 @@ let TheodonHud = class {
     // CREATE A NEW WORLD SCRIPT
     
     newWorldScript() {
-        let _this = this;
+
         this.app.editor.open("","",(path,script)=>{
             if(!path || path.trim() == "") {
                 alert("No script path specified.");
                 return;
             }
-            _this.app.store.saveWorldScript(path,script);
+            this.app.store.saveWorldScript(path,script);
+            this.app.editor.close();
+            this.showHUD();
         });
     }
 
@@ -129,6 +131,7 @@ let TheodonHud = class {
             this.hudPlane.dispose();
             this.hudPlane = null;
         }
+        this.showingBranch = null;
     }
     
     // UPDATE WORLD SCRIPTS
@@ -170,12 +173,15 @@ let TheodonHud = class {
             
         });
         
+        if(this.showingBranch) {
+            this.showHUD();
+        }
     }
     
     // SHOW A BRANCH OF WS TREE
     
     showWorldScriptBranch(node,offset) {
-        
+        this.showingBranch = {node:node,offset:offset};
         
         if(!node) {
             node = this.wsRoot;
@@ -256,7 +262,6 @@ let TheodonHud = class {
                     // OPEN EDITOR
                     
                     _this.app.editor.open(node.script.path,node.script.code,(path,code)=>{
-                        
                         // SAVE CODE
                         
                         co(function *(){
@@ -272,6 +277,24 @@ let TheodonHud = class {
                     });
                 });
                 this.advancedTexture.addControl(btnEdit);
+                
+                // ADD REMOVE BUTTON
+            
+                let btnRemove = BABYLON.GUI.Button.CreateSimpleButton("btn remove " + node.name, "delete");
+                parentControls.push(btnRemove);
+                btnRemove.width = "40px";
+                btnRemove.height = "12px";
+                btnRemove.color = "white";
+                btnRemove.cornerRadius = 20;
+                btnRemove.background = "red";
+                btnRemove.fontSize = 10;
+                btnRemove.thickness = 1;
+                btnRemove.top = top + 7;
+                btnRemove.left = offset + 100;
+                btnRemove.onPointerUpObservable.add(()=>{
+                    _this.app.store.removeWorldScript(node.script);
+                });
+                this.advancedTexture.addControl(btnRemove);
             }
             
             this.advancedTexture.addControl(btnScript);

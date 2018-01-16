@@ -132,17 +132,14 @@ let WayPointVector = class {
     set x(x) {
         this.prop.x = parseFloat(x);
         this.actor.saveWaypoint();
-        console.log("X:",x,this.prop)
     }
     set y(y) {
         this.prop.y = parseFloat(y);
         this.actor.saveWaypoint();
-        console.log("Y:",y,this.prop)
     }
     set z(z) {
         this.prop.z = parseFloat(z);
         this.actor.saveWaypoint();
-        console.log("Z:",this.prop)
     }
     
     
@@ -477,7 +474,7 @@ let Actor = class {
                     }
                     
                     _this._mesh = fn.apply(null,args);
-                    
+                    _this._mesh.aid = _this.id;
                     _this.created = true;
                     _this._mesh.isVisible = false; // TEMP HIDE
                     initHide = true; // SO WE CAN UNHIDE
@@ -490,6 +487,7 @@ let Actor = class {
                 // MATERIAL
                 
                 _this._mesh.material = new BABYLON.StandardMaterial("material", _this.app.scene);
+                
                 if(_this.proxy.diffuseColor) {
                     _this._mesh.material.diffuseColor = _this.proxy.diffuseColor;
                 }
@@ -520,14 +518,6 @@ let Actor = class {
                 if(_this.proxy.ambientTexture) {
                     _this._mesh.material.ambientTexture = yield _this.app.textures.getTexture(_this.proxy.ambientTexture.name);
                 }
-                
-                // SETUP FOR PICKING
-                
-                _this._mesh.isPickable = true;
-                _this._mesh.actionManager = new BABYLON.ActionManager(_this.app.scene);
-                _this._mesh.actionManager.registerAction(
-                    new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, _this.picked)
-                );
                 
                 // SHOW IF HIDDEN DUE TO INIT
                 
@@ -567,6 +557,13 @@ let Actor = class {
     }
     
     remove() {
+        this.mesh.getChildMeshes(true).forEach((m)=>{
+            console.log(m)
+            if(m.aid) {
+                let child = this.app.actors.actorsById[m.aid];
+                child.remove();
+            }
+        });
         this.app.store.removeActor(this);
     }
     

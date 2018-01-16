@@ -113,7 +113,10 @@ let ScriptManager = class {
     // REMOVE A SCRIPT
     
     removeScript(script) {
-        
+        this.worldScripts = this.worldScripts.filter(s=>s._id != script._id);
+        if(this.app.hud) {
+            this.app.hud.updateWorldScripts(this.worldScripts);
+        }
     }
 };
 
