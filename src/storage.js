@@ -206,6 +206,43 @@ let Store = class {
         });
     }
     
+    removeActor(actor) {
+        // GET DB
+        
+        let db = this.app.firestore();
+        
+        // DELETE ACTOR
+        
+        let actorsRef = db.collection("actors").doc(actor.id);
+        actorsRef.delete();
+        
+        // DELETE PLACEMENT
+        
+        let placementRef = db.collection("placements").doc(actor.id);
+        placementRef.delete();
+        
+        // DELETE WAYPOINTS
+        
+        let query = db.collection("waypoints").where("aid", "==", actor.id);
+        query.get().then((snapshot) => {
+            // When there are no documents left, we are done
+            if (snapshot.size == 0) {
+                return 0;
+            }
+
+            // Delete documents in a batch
+            var batch = db.batch();
+            snapshot.docs.forEach(function(doc) {
+                batch.delete(doc.ref);
+            });
+
+            return batch.commit().then(function() {
+                return snapshot.size;
+            });
+        });
+        
+    }
+    
     // CALC ZONE
     
     getZone(p) {
@@ -274,7 +311,7 @@ let Store = class {
     
     // WATCH PLACEMENTS
     
-    watchPlacements(onChange,onRemove) {
+    watchPlacements(onChange) {
         
         // WATCH SCRIPTS
         
@@ -292,16 +329,14 @@ let Store = class {
                 if (change.type === "modified") {
                     onChange(placementDef);
                 }
-                if (change.type === "removed") {
-                    onRemove(placementDef);
-                }
+                
             });
         });
     }
     
     // WATCH WAYPOINT
     
-    watchWaypoints(onChange,onRemove) {
+    watchWaypoints(onChange) {
         
         // WATCH SCRIPTS
         
@@ -312,16 +347,38 @@ let Store = class {
 
                 let waypointDef = change.doc.data();
                 waypointDef._id = change.doc.id;
-                
+            
                 if (change.type === "added") {
                     onChange(waypointDef);
                 }
                 if (change.type === "modified") {
                     onChange(waypointDef);
                 }
-                if (change.type === "removed") {
-                    onRemove(waypointDef);
-                }
+            });
+        });
+    }
+    
+    clearWaypoints(actor,time) {
+        
+        let db = this.app.firestore();
+        let query = db.collection("waypoints");
+        query.where("aid","==",actor.id);
+        query.where("time", "<=", time);
+        
+        query.get().then((snapshot) => {
+            // When there are no documents left, we are done
+            if (snapshot.size == 0) {
+                return 0;
+            }
+
+            // Delete documents in a batch
+            var batch = db.batch();
+            snapshot.docs.forEach(function(doc) {
+                batch.delete(doc.ref);
+            });
+
+            return batch.commit().then(function() {
+                return snapshot.size;
             });
         });
     }

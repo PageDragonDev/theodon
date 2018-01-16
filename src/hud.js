@@ -69,7 +69,7 @@ let TheodonHud = class {
         
         this.advancedTexture.addControl(newScript);
         
-         // ADD PROPS
+        // ADD PROPS
         
         if(this.app.pickedActor) {
             var props = BABYLON.GUI.Button.CreateSimpleButton("btnProps", "Properties");
@@ -84,6 +84,24 @@ let TheodonHud = class {
             props.onPointerUpObservable.add(()=>{this.showActorHUD(this.app.pickedActor)});
             
             this.advancedTexture.addControl(props);
+        }
+        
+        // ADD DELETE
+        
+        if(this.app.pickedActor) {
+            var remove = BABYLON.GUI.Button.CreateSimpleButton("btnremove", "Remove");
+            remove.width = "150px";
+            remove.height = "40px";
+            remove.color = "white";
+            remove.cornerRadius = 20;
+            remove.background = "red";
+            remove.fontSize = 20;
+            remove.thickness = 1;
+            remove.top = "-15.6%";
+            remove.left = "170px";
+            remove.onPointerUpObservable.add(()=>{this.app.pickedActor.remove()});
+            
+            this.advancedTexture.addControl(remove);
         }
         
         this.showWorldScriptBranch();

@@ -88,6 +88,10 @@ let TheodonApp = class {
         
         this.textures = new Textures(this);
         
+        // Highlight Layer
+        
+        this.hlLayer = new BABYLON.HighlightLayer("hl1", scene);
+        
         // Run World onLoad
         
         this.scripts.runWhenLoaded("World/On Load");

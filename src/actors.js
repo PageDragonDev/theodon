@@ -10,7 +10,9 @@ let Actors = class {
         this.actors = [];
         this.actorsById = {};
         this.waitOn = {};
+        this.whenLoaded = {};
         this.done = this.done.bind(this);
+        this.doWhenLoaded = this.doWhenLoaded.bind(this);
         
         let _this = this;
         
@@ -18,11 +20,24 @@ let Actors = class {
         
         _this.app.store.watchActors((actorDef)=>{
             let actor = _this.addDef(actorDef);
+            
             let waitOn = _this.waitOn[actorDef._id];
             if(waitOn) {
                 actor.updatePlacement(waitOn);
                 delete _this.waitOn[actorDef._id];
             }
+            
+            let doWhen = _this.whenLoaded[actorDef._id];
+            if(doWhen) {
+                doWhen(actor);
+                delete _this.whenLoaded[actorDef._id];
+            }
+            
+        },(actorDef)=>{
+            let actor = _this.addDef(actorDef);
+            actor.destroy();
+            this.actors = this.actors.filter(a=>a.id != actorDef._id);
+            delete this.actorsById[actorDef._id];
         });    
 
         // WATCH PLACEMENTS
@@ -83,6 +98,15 @@ let Actors = class {
         this.actors.forEach(a=>a.done());
     }
     
+    doWhenLoaded(aid,fn) {
+        let actor = this.actorsById[aid];
+        if(actor) {
+            fn(actor);
+        } else {
+            this.whenLoaded[aid] = fn;
+        }
+    }
+    
 };
 exports.Actors = Actors;
 
@@ -108,14 +132,17 @@ let WayPointVector = class {
     set x(x) {
         this.prop.x = parseFloat(x);
         this.actor.saveWaypoint();
+        console.log("X:",x,this.prop)
     }
     set y(y) {
         this.prop.y = parseFloat(y);
         this.actor.saveWaypoint();
+        console.log("Y:",y,this.prop)
     }
     set z(z) {
         this.prop.z = parseFloat(z);
         this.actor.saveWaypoint();
+        console.log("Z:",this.prop)
     }
     
     
@@ -132,9 +159,11 @@ let Actor = class {
         this.created = false;
         this.picked = this.picked.bind(this);
         this.proxy = {name:"",material:{},position:{x:0,y:0,z:0},rotation:{x:0,y:0,z:0},scaling:{x:1,y:1,z:1}};
-        this.saveWaypoint = _.throttle(this.saveWaypoint.bind(this),1000,{leading:true});
+        this.saveWaypoint = _.debounce(this.saveWaypoint.bind(this),500);
         this.savePlacement = _.debounce(this.savePlacement.bind(this),5000);
+        this.clearWaypoints = _.debounce(this.clearWaypoints.bind(this),5000);
         this.lastUpdated = 0;
+        this._parent = null;
         
         if(def) {
             this.init(def);
@@ -161,9 +190,9 @@ let Actor = class {
         this.proxy.specularColor = def.specularColor;
         this.proxy.ambientColor = def.ambientColor;
         this.proxy.diffuseTexture = def.diffuseTexture;
+        this.proxy.parent = def.parent;
         this.create();
         this.hasChanges = false;
-        this.hasPlacementChanges = false;
         
     }
     
@@ -179,6 +208,7 @@ let Actor = class {
         this.created = actor.created;
         this.hasChanges = actor.hasChanges;
         this.hasPlacementChanges = actor.hasChanges;
+        this.proxy.parent = actor.parent;
         this.create();
     }
     
@@ -286,8 +316,17 @@ let Actor = class {
             
         }
     }
-
     
+    // CLEAR WAYPOINTS OLDER THAN FIVE SECONDS FROM LAST UPDATED
+    
+    clearWaypoints(time) {
+        if(this.lastUpdated) {
+            this.app.store.clearWaypoints(this,new Date(this.lastUpdated-5000));
+        }
+    }
+    
+    // SETS ACTOR TO A PRIMITIVE (MUST BE A SET OF MESH BUILDER PARAMS)
+
     setPrimative(args) {
         this.type = "primitive";
         this.primitive = [];
@@ -296,6 +335,8 @@ let Actor = class {
         }
         this.hasChanges = true;
     }
+    
+    // SAVE ACTOR
     
     save() {
         let instance = {};
@@ -362,6 +403,12 @@ let Actor = class {
                     instance.ambientTexture = createTexture(_this.ambientTexture);
                 }
                 
+                // PARENT
+                
+                if(_this.parent) {
+                    instance.parent = _this.parent.id;
+                }
+                
                 return yield _this.app.store.saveActor(_this._id,instance);
                 
             }
@@ -391,6 +438,10 @@ let Actor = class {
         // ALSO SAVE PLACEMENT
         
         this.savePlacement();
+        
+        // ALSO CLEAR WAYPOINTS
+        
+        this.clearWaypoints();
     }
     
     done() {
@@ -478,8 +529,18 @@ let Actor = class {
                     new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, _this.picked)
                 );
                 
+                // SHOW IF HIDDEN DUE TO INIT
+                
                 if(initHide) {
                     _this._mesh.isVisible = true;
+                }
+                
+                // SET PARENT
+                
+                if(_this.proxy.parent) {
+                    _this.app.actors.doWhenLoaded(_this.proxy.parent,(actor)=>{
+                        _this._mesh.parent = actor.mesh;
+                    });
                 }
                 
                 return _this._mesh;
@@ -487,11 +548,26 @@ let Actor = class {
         });
     }
     
+    // DESTROY ACTOR AND MESH
+    
+    destroy() {
+        if(this._mesh) {
+            this._mesh.dispose();
+        }
+    }
+    
     picked(evt) {
-        //console.log("PICKED",evt)
+        console.log("PICKED",evt)
         
+        this.app._pickedActors.forEach(a=>{
+            this.app.hlLayer.removeMesh(a._mesh,BABYLON.Color3.Green());
+        });
         this.app._pickedActors = [this];
-        //this.app.hud.showActorHUD(this);
+        this.app.hlLayer.addMesh(this._mesh,BABYLON.Color3.Green());
+    }
+    
+    remove() {
+        this.app.store.removeActor(this);
     }
     
     // PROPS
@@ -510,6 +586,16 @@ let Actor = class {
     
     set name(name) {
         this.mesh.name = name;
+        this.hasChanges = true;
+    }
+    
+    get parent() {
+        return this._parent;
+    }
+    
+    set parent(parent) {
+        this._parent = parent;
+        this.mesh.parent = parent._mesh;
         this.hasChanges = true;
     }
     
