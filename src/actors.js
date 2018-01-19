@@ -60,6 +60,26 @@ let Actors = class {
                 actor.updateWaypoint(waypoint);
             } 
         });
+        
+    }
+    
+    // SEND EVENT
+        
+    send(eventName,eventData) {
+        
+        let honored = 0;
+        if(eventData.targetActor) {
+            let res = eventData.targetActor.trigger(eventName,eventData);
+            if(res) {honored++;}
+        } else {
+            this.actors.forEach(actor=>{
+                let res = actor.trigger(eventName,eventData);
+                if(res) {honored++;}
+            });
+        }
+        
+        console.info("EVENT",eventName,"HONORED",honored,honored==1?"TIME":"TIMES");
+        
     }
     
     // ADD
@@ -154,13 +174,14 @@ let Actor = class {
         this.app = app;
         this._id = uuidv1();
         this.created = false;
-        this.picked = this.picked.bind(this);
+        this.pick = this.pick.bind(this);
         this.proxy = {name:"",material:{},position:{x:0,y:0,z:0},rotation:{x:0,y:0,z:0},scaling:{x:1,y:1,z:1}};
         this.saveWaypoint = _.debounce(this.saveWaypoint.bind(this),500);
         this.savePlacement = _.debounce(this.savePlacement.bind(this),5000);
         this.clearWaypoints = _.debounce(this.clearWaypoints.bind(this),5000);
         this.lastUpdated = 0;
         this._parent = null;
+        this._state = {};
         
         if(def) {
             this.init(def);
@@ -187,6 +208,7 @@ let Actor = class {
         this.proxy.specularColor = def.specularColor;
         this.proxy.ambientColor = def.ambientColor;
         this.proxy.diffuseTexture = def.diffuseTexture;
+        this._state = def.state?def.state:{};
         this.proxy.parent = def.parent;
         this.create();
         this.hasChanges = false;
@@ -406,6 +428,10 @@ let Actor = class {
                     instance.parent = _this.parent.id;
                 }
                 
+                // STATE
+                
+                instance.state = _this._state;
+                
                 return yield _this.app.store.saveActor(_this._id,instance);
                 
             }
@@ -546,25 +572,64 @@ let Actor = class {
         }
     }
     
-    picked(evt) {
-        console.log("PICKED",evt)
+    pick(evt) {
         
-        this.app._pickedActors.forEach(a=>{
-            this.app.hlLayer.removeMesh(a._mesh,BABYLON.Color3.Green());
-        });
-        this.app._pickedActors = [this];
-        this.app.hlLayer.addMesh(this._mesh,BABYLON.Color3.Green());
+        // ONLY PICK IF NOT ALREADY PICKED, OTHERWISE UNPICK
+        
+        if(this.app._pickedActors.indexOf(this) < 0) {
+            console.log("ACTOR PICKED",evt);
+            
+            this.app._pickedActors.forEach(a=>{
+                this.app.hlLayer.removeMesh(a._mesh,BABYLON.Color3.Green());
+            });
+            this.app._pickedActors = [this];
+            this.app.hlLayer.addMesh(this._mesh,BABYLON.Color3.Green());
+            
+            // SEND PICK EVENT
+            
+            this.app.actors.send("pick",Object.assign({targetActor:this},evt));
+        } else {
+            this.app._pickedActors.forEach(a=>{
+                this.app.hlLayer.removeMesh(a._mesh,BABYLON.Color3.Green());
+            });
+            this.app._pickedActors = [];
+        }
+        
     }
     
     remove() {
         this.mesh.getChildMeshes(true).forEach((m)=>{
-            console.log(m)
             if(m.aid) {
                 let child = this.app.actors.actorsById[m.aid];
                 child.remove();
             }
         });
         this.app.store.removeActor(this);
+    }
+    
+    setState(newState) {
+        this._state = Object.assign(this._state,newState);
+        this.hasChanges;
+    }
+    
+    // ON MESSAGE
+    
+    on(event,scriptPath) {
+        let onEvent = {};
+        onEvent["_"+event] = scriptPath;
+        this.setState(onEvent);
+    }
+    
+    // TRIGGER
+    
+    trigger(eventName,eventData) {
+        let scriptPath = this._state["_" + eventName];
+        if(scriptPath) {
+            let script = this.app.scripts.getScriptByPath(scriptPath);
+            this.app.scripts.run(script,eventData,this);
+            return true;
+        }
+        return false;
     }
     
     // PROPS

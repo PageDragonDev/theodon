@@ -7,6 +7,7 @@ let ScriptManager = class {
     constructor (app) {
         this.app = app;
         this.worldScripts = [];
+        this.worldScriptsByPath = {};
         this.whenLoaded = [];
         this.updateScript = this.updateScript.bind(this);
         this.removeScript = this.removeScript.bind(this);
@@ -36,14 +37,16 @@ let ScriptManager = class {
             script = _script;
             this.worldScripts.push(script);
         }
+        this.worldScriptsByPath[script.path] = script;
         
         // MAKE INTO FN
         
         let _Function = Function;
         let decoratedScript = "co(function *(){" + script.code + "\ndone();});";
         decoratedScript = decoratedScript.replace(/texture\(/,"yield texture(");
+        decoratedScript = decoratedScript.replace(/fetchFileDialog\(/,"yield fetchFileDialog(");
         
-        script.fn = new _Function("done","co","BABYLON","scene","primitive","color","picked","texture",decoratedScript);
+        script.fn = new _Function("done","co","BABYLON","scene","primitive","color","picked","texture","data","source","fetchFileDialog",decoratedScript);
         
         if(this.app.hud) {
             this.app.hud.updateWorldScripts(this.worldScripts);
@@ -61,16 +64,16 @@ let ScriptManager = class {
     // GET A SCRIPT
     
     getScriptByPath(path) {
-        return this.worldScripts.find((s)=>s.path == path);
+        return this.worldScriptsByPath[path];
     }
     
     // RUN A SCRIPT
     
-    run(script) {
+    run(script,data = {},source=null) {
         if(script && script.fn) {
             
             try {
-                script.fn(this.app.actors.done,co,BABYLON,this.app.scene,this.primitive,this.color,this.app.pickedActor,this.texture);
+                script.fn(this.app.actors.done,co,BABYLON,this.app.scene,this.primitive,this.color,this.app.pickedActor,this.texture,data,source,this.app.store.fetchFileDialog);
             } catch(e) {
                 console.error("Script:",script.path,e);
             }

@@ -195,7 +195,6 @@ let TheodonHud = class {
             return;
         }
         
-        
         if(node.parent && node.parent.controls) {
             node.parent.controls.forEach(control=>{
                 control.dispose();

@@ -98,12 +98,13 @@ let TheodonApp = class {
         
         // Setup Picking
         
-        this.renderTarget.addEventListener("click", () => {
+        this.renderTarget.addEventListener("click", (e) => {
            let pickResult = scene.pick(scene.pointerX, scene.pointerY);
            if(pickResult.pickedMesh) {
                 let actor = this.actors.actorsById[pickResult.pickedMesh.aid];
                 if(actor) {
-                    actor.picked(pickResult);
+                    pickResult.event = e;
+                    actor.pick(pickResult);
                 }
            }
         });
