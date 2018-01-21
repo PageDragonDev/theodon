@@ -335,35 +335,35 @@ let TheodonHud = class {
         // X, Y, Z
         
         new Text(5,25,50,15,"X",this.hudTexture);
-        new Input(55,25,60,18,actor.position.x,(x)=>{actor.position.x = x;actor.savePlacement()},this.hudTexture);
+        new Input(55,25,60,18,actor.position.x,(x)=>{actor.position.x = x},this.hudTexture);
         
         new Text(5,45,50,15,"Y",this.hudTexture);
-        new Input(55,45,60,18,actor.position.y,(y)=>{actor.position.y = y;actor.savePlacement()},this.hudTexture);
+        new Input(55,45,60,18,actor.position.y,(y)=>{actor.position.y = y},this.hudTexture);
         
         new Text(5,65,50,15,"Z",this.hudTexture);
-        new Input(55,65,60,18,actor.position.z,(z)=>{actor.position.z = z;actor.savePlacement()},this.hudTexture);
+        new Input(55,65,60,18,actor.position.z,(z)=>{actor.position.z = z},this.hudTexture);
         
         // rX, rY, rZ
         
         new Text(5,85,50,15,"rX",this.hudTexture);
-        new Input(55,85,60,18,actor.rotation.x,(x)=>{actor.rotation.x = x;actor.savePlacement()},this.hudTexture);
+        new Input(55,85,60,18,actor.rotation.x,(x)=>{actor.rotation.x = x},this.hudTexture);
         
         new Text(5,105,50,15,"rY",this.hudTexture);
-        new Input(55,105,60,18,actor.rotation.y,(y)=>{actor.rotation.y = y;actor.savePlacement()},this.hudTexture);
+        new Input(55,105,60,18,actor.rotation.y,(y)=>{actor.rotation.y = y},this.hudTexture);
         
         new Text(5,125,50,15,"rZ",this.hudTexture);
-        new Input(55,125,60,18,actor.rotation.z,(z)=>{actor.rotation.z = z;actor.savePlacement()},this.hudTexture);
+        new Input(55,125,60,18,actor.rotation.z,(z)=>{actor.rotation.z = z},this.hudTexture);
         
         // sX, sY, sZ
         
         new Text(5,145,50,15,"sX",this.hudTexture);
-        new Input(55,145,60,18,actor.scaling.x,(x)=>{actor.scaling.x = x;actor.savePlacement()},this.hudTexture);
+        new Input(55,145,60,18,actor.scaling.x,(x)=>{actor.scaling.x = x},this.hudTexture);
         
         new Text(5,165,50,15,"sY",this.hudTexture);
-        new Input(55,165,60,18,actor.scaling.y,(y)=>{actor.scaling.y = y;actor.savePlacement()},this.hudTexture);
+        new Input(55,165,60,18,actor.scaling.y,(y)=>{actor.scaling.y = y},this.hudTexture);
         
         new Text(5,185,50,15,"sZ",this.hudTexture);
-        new Input(55,185,60,18,actor.scaling.z,(z)=>{actor.scaling.z = z;actor.savePlacement()},this.hudTexture);
+        new Input(55,185,60,18,actor.scaling.z,(z)=>{actor.scaling.z = z},this.hudTexture);
         
     }
     

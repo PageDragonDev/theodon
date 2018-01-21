@@ -43,6 +43,7 @@ let Actors = class {
         // WATCH PLACEMENTS
         
         this.app.store.watchPlacements((placement)=>{
+            console.log("WATCH PL:",placement)
             let actor = this.actorsById[placement._id];
             if(actor) {
                 actor.updatePlacement(placement);
@@ -55,6 +56,21 @@ let Actors = class {
         // WATCH WAYPOINTS
         
         this.app.store.watchWaypoints((waypoint)=>{
+            console.log("WATCH WP:",waypoint)
+            
+            // IGNORE STALE WAYPOINTS
+            
+            if(waypoint.time) {
+                let now = new Date().getTime();
+                let then = waypoint.time.getTime();
+                
+                if(now - then > 5000) {
+                    return;
+                }
+            }
+            
+            // UPDATE ACTOR
+            
             let actor = this.actorsById[waypoint.aid];
             if(actor) {
                 actor.updateWaypoint(waypoint);
@@ -176,7 +192,7 @@ let Actor = class {
         this.created = false;
         this.pick = this.pick.bind(this);
         this.proxy = {name:"",material:{},position:{x:0,y:0,z:0},rotation:{x:0,y:0,z:0},scaling:{x:1,y:1,z:1}};
-        this.saveWaypoint = _.debounce(this.saveWaypoint.bind(this),500);
+        this.saveWaypoint = this.saveWaypoint.bind(this); //_.debounce(this.saveWaypoint.bind(this),500);
         this.savePlacement = _.debounce(this.savePlacement.bind(this),5000);
         this.clearWaypoints = _.debounce(this.clearWaypoints.bind(this),5000);
         this.lastUpdated = 0;
@@ -234,6 +250,7 @@ let Actor = class {
     // TRANSFORM ACTOR TO NEW POSITION, ORIENTATION, AND SCALE
     
     updatePlacement(def) {
+        console.log("UPDATE PL:",def.position)
         if(!def.time) {
             return;
         }
@@ -248,7 +265,7 @@ let Actor = class {
         if(time < this.lastUpdated) {
             return;
         }
-        this.lastUpdated = time;
+        this.lastUpdated = new Date().getTime();
 
         if(def.position) {
             if(this._mesh) {
@@ -281,6 +298,7 @@ let Actor = class {
     // TRANSFORM ACTOR TO NEW POSITION, ORIENTATION, AND SCALE
     
     updateWaypoint(def) {
+        console.log("UPDATE PL:",def.position)
         if(!def.time) {
             return;
         }
@@ -291,8 +309,12 @@ let Actor = class {
         if(time < this.lastUpdated) {
             return;
         }
-        this.lastUpdated = time;
-        let timeDiff = new Date().getTime() - time;
+        this.lastUpdated = new Date().getTime();
+        let timeDiff = this.lastUpdated - time;
+        if(timeDiff < 0) {
+            timeDiff = 0;
+        }
+        console.log("TIME DIFF",timeDiff)
 
         if(def.position) {
             if(this._mesh) {
@@ -444,6 +466,8 @@ let Actor = class {
         placement.position = {x:this.proxy.position.x,y:this.proxy.position.y,z:this.proxy.position.z};
         placement.rotation = {x:this.proxy.rotation.x,y:this.proxy.rotation.y,z:this.proxy.rotation.z};
         placement.scaling = {x:this.proxy.scaling.x,y:this.proxy.scaling.y,z:this.proxy.scaling.z};
+        
+        console.log("SAVING PL:",placement)
         this.app.store.savePlacement(this,placement);
     }
     
@@ -456,6 +480,7 @@ let Actor = class {
         waypoint.position = {x:this.proxy.position.x,y:this.proxy.position.y,z:this.proxy.position.z};
         waypoint.rotation = {x:this.proxy.rotation.x,y:this.proxy.rotation.y,z:this.proxy.rotation.z};
         waypoint.scaling = {x:this.proxy.scaling.x,y:this.proxy.scaling.y,z:this.proxy.scaling.z};
+        console.log("SAVING WP:",waypoint)
         this.app.store.saveWaypoint(this,waypoint);
         
         // ALSO SAVE PLACEMENT
