@@ -43,7 +43,6 @@ let Actors = class {
         // WATCH PLACEMENTS
         
         this.app.store.watchPlacements((placement)=>{
-            console.log("WATCH PL:",placement)
             let actor = this.actorsById[placement._id];
             if(actor) {
                 actor.updatePlacement(placement);
@@ -56,7 +55,6 @@ let Actors = class {
         // WATCH WAYPOINTS
         
         this.app.store.watchWaypoints((waypoint)=>{
-            console.log("WATCH WP:",waypoint)
             
             // IGNORE STALE WAYPOINTS
             
@@ -250,7 +248,7 @@ let Actor = class {
     // TRANSFORM ACTOR TO NEW POSITION, ORIENTATION, AND SCALE
     
     updatePlacement(def) {
-        console.log("UPDATE PL:",def.position)
+
         if(!def.time) {
             return;
         }
@@ -298,7 +296,7 @@ let Actor = class {
     // TRANSFORM ACTOR TO NEW POSITION, ORIENTATION, AND SCALE
     
     updateWaypoint(def) {
-        console.log("UPDATE PL:",def.position)
+
         if(!def.time) {
             return;
         }
@@ -309,12 +307,11 @@ let Actor = class {
         if(time < this.lastUpdated) {
             return;
         }
-        this.lastUpdated = new Date().getTime();
+        this.lastUpdated = time;
         let timeDiff = this.lastUpdated - time;
         if(timeDiff < 0) {
             timeDiff = 0;
         }
-        console.log("TIME DIFF",timeDiff)
 
         if(def.position) {
             if(this._mesh) {
@@ -467,7 +464,6 @@ let Actor = class {
         placement.rotation = {x:this.proxy.rotation.x,y:this.proxy.rotation.y,z:this.proxy.rotation.z};
         placement.scaling = {x:this.proxy.scaling.x,y:this.proxy.scaling.y,z:this.proxy.scaling.z};
         
-        console.log("SAVING PL:",placement)
         this.app.store.savePlacement(this,placement);
     }
     
@@ -480,7 +476,7 @@ let Actor = class {
         waypoint.position = {x:this.proxy.position.x,y:this.proxy.position.y,z:this.proxy.position.z};
         waypoint.rotation = {x:this.proxy.rotation.x,y:this.proxy.rotation.y,z:this.proxy.rotation.z};
         waypoint.scaling = {x:this.proxy.scaling.x,y:this.proxy.scaling.y,z:this.proxy.scaling.z};
-        console.log("SAVING WP:",waypoint)
+
         this.app.store.saveWaypoint(this,waypoint);
         
         // ALSO SAVE PLACEMENT
@@ -609,16 +605,16 @@ let Actor = class {
             });
             this.app._pickedActors = [this];
             this.app.hlLayer.addMesh(this._mesh,BABYLON.Color3.Green());
-            
-            // SEND PICK EVENT
-            
-            this.app.actors.send("pick",Object.assign({targetActor:this},evt));
         } else {
             this.app._pickedActors.forEach(a=>{
                 this.app.hlLayer.removeMesh(a._mesh,BABYLON.Color3.Green());
             });
             this.app._pickedActors = [];
         }
+        
+        // SEND PICK EVENT
+            
+        this.app.actors.send("pick",Object.assign({target:this},evt));
         
     }
     
@@ -639,18 +635,19 @@ let Actor = class {
     
     // ON MESSAGE
     
-    on(event,scriptPath) {
+    on(event,scriptPath,options) {
         let onEvent = {};
-        onEvent["_"+event] = scriptPath;
+        onEvent["_"+event] = {path:scriptPath,options:options?options:null};
         this.setState(onEvent);
     }
     
     // TRIGGER
     
     trigger(eventName,eventData) {
-        let scriptPath = this._state["_" + eventName];
-        if(scriptPath) {
-            let script = this.app.scripts.getScriptByPath(scriptPath);
+        let event = this._state["_" + eventName];
+        
+        if(event) {
+            let script = this.app.scripts.getScriptByPath(event.path);
             this.app.scripts.run(script,eventData,this);
             return true;
         }
