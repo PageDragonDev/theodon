@@ -1,5 +1,6 @@
 import BABYLON from "babylonjs";
-import Actor from "./actors.js";
+import Actor from "./actors/actor.js";
+import Grid from "./actors/grid.js";
 import co from "co";
 
 let ScriptManager = class {
@@ -15,6 +16,7 @@ let ScriptManager = class {
         // SCRIPT HELPERS
         
         this.primitive = this.primitive.bind(this);
+        this.grid = this.grid.bind(this);
         this.color = this.color.bind(this);
         this.texture = this.texture.bind(this);
         
@@ -46,7 +48,7 @@ let ScriptManager = class {
         decoratedScript = decoratedScript.replace(/texture\(/,"yield texture(");
         decoratedScript = decoratedScript.replace(/fetchFileDialog\(/,"yield fetchFileDialog(");
         
-        script.fn = new _Function("done","co","BABYLON","scene","primitive","color","picked","texture","data","target","source","fetchFileDialog",decoratedScript);
+        script.fn = new _Function("done","co","BABYLON","scene","primitive","grid","color","picked","texture","data","target","fetchFileDialog",decoratedScript);
         
         if(this.app.hud) {
             this.app.hud.updateWorldScripts(this.worldScripts);
@@ -69,11 +71,12 @@ let ScriptManager = class {
     
     // RUN A SCRIPT
     
-    run(script,data = {},source=null) {
+    run(script,data = {}) {
+        
         if(script && script.fn) {
             
             try {
-                script.fn(this.app.actors.done,co,BABYLON,this.app.scene,this.primitive,this.color,this.app.pickedActor,this.texture,data,data.target,source,this.app.store.fetchFileDialog);
+                script.fn(this.app.actors.done,co,BABYLON,this.app.scene,this.primitive,this.grid,this.color,this.app.pickedActor,this.texture,data,data.target,this.app.store.fetchFileDialog);
             } catch(e) {
                 console.error("Script:",script.path,e);
             }
@@ -92,6 +95,24 @@ let ScriptManager = class {
             return actor;
         }
         
+    }
+    
+    // Grid Script Helper
+    
+    grid(parent,width,height,gridSize) {
+        let actor = new Grid(this.app, {
+            name:this.name + "grid",
+            parent:this.parent,
+            gridType:"square",
+            gridSize:gridSize,
+            gridWidth:width,
+            gridHeight:height
+        });
+        actor.parent = parent;
+        this.app.actors.add(actor);
+        
+        actor.create();
+        return actor;
     }
     
     // NEW COLOR

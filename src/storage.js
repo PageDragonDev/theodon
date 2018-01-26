@@ -211,7 +211,7 @@ let Store = class {
     }
 
     saveActor(aid, instance) {
-
+        
         // GET DB
 
         let db = this.app.firestore();

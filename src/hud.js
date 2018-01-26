@@ -367,6 +367,33 @@ let TheodonHud = class {
         
     }
     
+    showEventHUD(actor, hud, evt) {
+        
+        this.hideHUD();
+    
+        // GUI PLANE
+        
+        this.hudPlane = BABYLON.Mesh.CreatePlane("hudPlane", 2);
+        this.hudPlane.parent = this.app.camera;
+        this.hudPlane.position.z = 1.2;
+        this.hudPlane.position.x = 0;
+    
+        // GUI TEXTURE
+        
+        this.hudTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(this.hudPlane);
+        
+        hud.forEach((control,idx)=>{
+            new Button(0,idx*35,150,30,control.label,()=>{
+                if(control.script) {
+                    let script = this.app.scripts.getScriptByPath(control.script);
+                    evt.target = actor;
+                    this.app.scripts.run(script,evt);
+                }
+            },this.hudTexture);
+        });
+        
+    }
+    
 };
 
 class Control {
@@ -412,6 +439,28 @@ class Input extends Control {
         this.control.fontSize = 14;
         
         this.control.onBlurObservable.add((evt)=>{
+            fn(evt.text);
+        });
+        container.addControl(this.control); 
+    }
+    
+}
+
+class Button extends Control {
+    constructor(x,y,width,height,value,fn,container) {
+        super();
+        this.control = BABYLON.GUI.Button.CreateSimpleButton(x + y + "button", value);
+
+        this.control.width = this.pxWidth(width);
+        this.control.height = this.pxHeight(height);
+        this.control.color = "white";
+        this.control.cornerRadius = 20;
+        this.control.background = "green";
+        this.control.fontSize = 20;
+        this.control.thickness = 1;
+        this.control.top = this.pxY(y,height);
+        this.control.left = this.pxX(x,width);
+        this.control.onPointerUpObservable.add((evt)=>{
             fn(evt.text);
         });
         container.addControl(this.control); 
