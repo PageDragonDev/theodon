@@ -8,7 +8,9 @@ class Grid extends Actor {
     constructor(app,def) {
         super(app);
         if(def) {
-            def._id = this._id;
+            if(!def._id) {
+                def._id = this._id;
+            }
             this.init(def);
         }
         this.hasChanges = true;
@@ -23,7 +25,6 @@ class Grid extends Actor {
     }
 
     init(def) {
-        
         this._id = def._id;
         this.type = def.type;
         this.proxy._name = def.name;

@@ -47,9 +47,17 @@ let TheodonApp = class {
         
         // create a basic BJS Scene object
         this.scene = new BABYLON.Scene(this.engine);
+        this.scene.collisionsEnabled = true;
         
         // create a FreeCamera, and set its position to (x:0, y:5, z:-10)
         this.camera = new BABYLON.FreeCamera('camera', new BABYLON.Vector3(0, 5,-10), this.scene);
+        this.camera.ellipsoid = new BABYLON.Vector3(10, 10, 10);
+        this.camera.speed = 4;
+        this.camera.keysUp = [38,87]; // W and UP
+        this.camera.keysDown = [40,83]; // A and UP
+        this.camera.keysLeft = [37,65]; // S and UP
+        this.camera.keysRight = [39,68]; // D and UP
+        this.camera.checkCollisions = true;
     
         // target the camera to scene origin
         this.camera.setTarget(BABYLON.Vector3.Zero());
@@ -108,6 +116,7 @@ let TheodonApp = class {
                 }
            }
         });
+        
         
     }
     

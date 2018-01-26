@@ -82,6 +82,7 @@ class Actor {
         this.proxy.specularColor = new BABYLON.Color3(def.specularColor.r,def.specularColor.g,def.specularColor.b);
         this.proxy.ambientColor = new BABYLON.Color3(def.ambientColor.r,def.ambientColor.g,def.ambientColorb);
         this.proxy.diffuseTexture = def.diffuseTexture;
+        this.proxy.checkCollisions = def.checkCollisions;
         this._state = def.state?def.state:{};
         this.proxy.parent = def.parent;
         this.create();
@@ -302,6 +303,10 @@ class Actor {
                     instance.ambientTexture = createTexture(_this.ambientTexture);
                 }
                 
+                // COLLISION
+                
+                instance.checkCollisions = _this.checkCollisions;
+                
                 // PARENT
                 
                 if(_this.parent) {
@@ -427,6 +432,10 @@ class Actor {
                     _this._mesh.material.ambientTexture = yield _this.app.textures.getTexture(_this.proxy.ambientTexture.name);
                 }
                 
+                // COLLISION
+                
+                _this._mesh.checkCollisions = _this.proxy.checkCollisions;
+                
                 // SHOW IF HIDDEN DUE TO INIT
                 
                 if(initHide) {
@@ -487,6 +496,7 @@ class Actor {
             }
         });
         this.app.store.removeActor(this);
+        //console.log("Removing:",this)
     }
     
     setState(newState) {
@@ -646,6 +656,17 @@ class Actor {
     
     set ambientColor(c) {
         this.mesh.material.ambientColor = c;
+        this.hasChanges = true;
+    }
+    
+    // COLLISION
+    
+    get checkCollisions() {
+        return this.mesh.checkCollisions;
+    }
+    
+    set checkCollisions(check) {
+        this.mesh.checkCollisions = check;
         this.hasChanges = true;
     }
     
