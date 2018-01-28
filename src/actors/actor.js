@@ -106,10 +106,14 @@ class Actor {
         this.create();
     }
     
+    placementOffset() {
+        return new BABYLON.Vector3.Zero();
+    }
+    
     // TRANSFORM ACTOR TO NEW POSITION, ORIENTATION, AND SCALE
     
     updatePlacement(def) {
-
+        
         if(!def.time) {
             return;
         }
@@ -125,14 +129,21 @@ class Actor {
             return;
         }
         this.lastUpdated = new Date().getTime();
-
+        
         if(def.position) {
+            // GET OFFSET
+        
+            let defPos = new BABYLON.Vector3(def.position.x,def.position.y,def.position.z);
+            let offsetPos = defPos.add(this.placementOffset());
+            
+            // PLACE
+            
             if(this._mesh) {
-                this._mesh.position = new BABYLON.Vector3(def.position.x,def.position.y,def.position.z);
+                this._mesh.position =offsetPos;
             }
-            this.proxy.position.x = this._mesh.position.x;
-            this.proxy.position.y = this._mesh.position.y;
-            this.proxy.position.z = this._mesh.position.z;
+            this.proxy.position.x = defPos.x;
+            this.proxy.position.y = defPos.y;
+            this.proxy.position.z = defPos.z;
         }
         
         if(def.rotation) {
@@ -175,13 +186,22 @@ class Actor {
         }
 
         if(def.position) {
+            
+            // GET OFFSET
+        
+            let defPos = new BABYLON.Vector3(def.position.x,def.position.y,def.position.z);
+            let offsetPos = defPos.add(this.placementOffset());
+            let offset = this.placementOffset();
+            
+            // PLACE
+            
             if(this._mesh) {
                 new TWEEN.Tween(this._mesh.position)
-    				.to(new BABYLON.Vector3(def.position.x,def.position.y,def.position.z), timeDiff)
+    				.to(offsetPos, timeDiff)
     				.onUpdate(()=>{
-    				    this.proxy.position.x = this._mesh.position.x;
-                        this.proxy.position.y = this._mesh.position.y;
-                        this.proxy.position.z = this._mesh.position.z;
+    				    this.proxy.position.x = this._mesh.position.x - offset.x;
+                        this.proxy.position.y = this._mesh.position.y - offset.y;
+                        this.proxy.position.z = this._mesh.position.z - offset.z;
     				})
     				.start();
             }
@@ -446,7 +466,7 @@ class Actor {
                 
                 if(_this.proxy.parent) {
                     _this.app.actors.doWhenLoaded(_this.proxy.parent,(actor)=>{
-                        _this._mesh.parent = actor.mesh;
+                        _this.parent = actor;
                     });
                 }
                 
@@ -535,6 +555,7 @@ class Actor {
     // SHOW HUD
     
     showHUD(hud,data = {}) {
+        console.log("Showing HUD for",this)
         data.target = this;
         this.app.hud.showEventHUD(this,hud,data);
     }

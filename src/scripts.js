@@ -17,6 +17,7 @@ let ScriptManager = class {
         
         this.primitive = this.primitive.bind(this);
         this.grid = this.grid.bind(this);
+        this.actor = this.actor.bind(this);
         this.color = this.color.bind(this);
         this.texture = this.texture.bind(this);
         
@@ -48,7 +49,7 @@ let ScriptManager = class {
         decoratedScript = decoratedScript.replace(/texture\(/,"yield texture(");
         decoratedScript = decoratedScript.replace(/fetchFileDialog\(/,"yield fetchFileDialog(");
         
-        script.fn = new _Function("done","co","BABYLON","scene","primitive","grid","color","picked","texture","data","target","fetchFileDialog",decoratedScript);
+        script.fn = new _Function("done","co","BABYLON","scene","primitive","grid", "actor","color","picked","texture","data","target","fetchFileDialog",decoratedScript);
         
         if(this.app.hud) {
             this.app.hud.updateWorldScripts(this.worldScripts);
@@ -76,7 +77,7 @@ let ScriptManager = class {
         if(script && script.fn) {
             
             try {
-                script.fn(this.app.actors.done,co,BABYLON,this.app.scene,this.primitive,this.grid,this.color,this.app.pickedActor,this.texture,data,data.target,this.app.store.fetchFileDialog);
+                script.fn(this.app.actors.done,co,BABYLON,this.app.scene,this.primitive,this.grid, this.actor,this.color,this.app.pickedActor,this.texture,data,data.target,this.app.store.fetchFileDialog);
             } catch(e) {
                 console.error("Script:",script.path,e);
             }
@@ -113,6 +114,12 @@ let ScriptManager = class {
         
         actor.create();
         return actor;
+    }
+    
+    // Get Actor Helper
+    
+    actor(aid) {
+        return this.app.actors.actorsById[aid];
     }
     
     // NEW COLOR

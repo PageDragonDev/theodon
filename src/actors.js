@@ -81,8 +81,8 @@ let Actors = class {
     send(eventName,eventData) {
         console.log("SEND",eventData)
         let honored = 0;
-        if(eventData.targetActor) {
-            let res = eventData.targetActor.trigger(eventName,eventData);
+        if(eventData.targetActor) { // THIS SHOULD BE TARGET, NOT TARGET ACTOR
+            let res = eventData.target.trigger(eventName,eventData);
             if(res) {honored++;}
         } else {
             this.actors.forEach(actor=>{
@@ -123,7 +123,6 @@ let Actors = class {
             let actor;
             switch(def.type) {
                 case('grid'):
-                    console.log("Adding Grid")
                     actor = new Grid(this.app,def);
                     break;
                 default:

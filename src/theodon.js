@@ -50,7 +50,7 @@ let TheodonApp = class {
         this.scene.collisionsEnabled = true;
         
         // create a FreeCamera, and set its position to (x:0, y:5, z:-10)
-        this.camera = new BABYLON.FreeCamera('camera', new BABYLON.Vector3(0, 5,-10), this.scene);
+        this.camera = new BABYLON.FreeCamera('camera', new BABYLON.Vector3(0, 50,-100), this.scene);
         this.camera.ellipsoid = new BABYLON.Vector3(10, 10, 10);
         this.camera.speed = 4;
         this.camera.keysUp = [38,87]; // W and UP
@@ -106,15 +106,18 @@ let TheodonApp = class {
         
         // Setup Picking
         
+        this.disablePicking = false;
         this.renderTarget.addEventListener("click", (e) => {
-           let pickResult = scene.pick(scene.pointerX, scene.pointerY);
-           if(pickResult.pickedMesh) {
-                let actor = this.actors.actorsById[pickResult.pickedMesh.aid];
-                if(actor) {
-                    pickResult.event = e;
-                    actor.pick(pickResult);
+            if(!this.disablePicking) {
+                let pickResult = scene.pick(scene.pointerX, scene.pointerY);
+                if(pickResult.pickedMesh) {
+                    let actor = this.actors.actorsById[pickResult.pickedMesh.aid];
+                    if(actor) {
+                        pickResult.event = e;
+                        actor.pick(pickResult);
+                    }
                 }
-           }
+            }
         });
         
         

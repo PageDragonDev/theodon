@@ -132,6 +132,7 @@ let TheodonHud = class {
             this.hudPlane = null;
         }
         this.showingBranch = null;
+        this.app.disablePicking = false;
     }
     
     // UPDATE WORLD SCRIPTS
@@ -370,6 +371,7 @@ let TheodonHud = class {
     showEventHUD(actor, hud, evt) {
         
         this.hideHUD();
+        this.app.disablePicking = true;
     
         // GUI PLANE
         
@@ -387,6 +389,9 @@ let TheodonHud = class {
                 if(control.script) {
                     let script = this.app.scripts.getScriptByPath(control.script);
                     evt.target = actor;
+                    if(control.data) {
+                        evt = Object.assign(evt,control.data);
+                    }
                     this.app.scripts.run(script,evt);
                 }
             },this.hudTexture);
