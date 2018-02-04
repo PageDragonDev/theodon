@@ -1,6 +1,7 @@
 import BABYLON from "babylonjs";
 import Actor from "./actors/actor.js";
 import Grid from "./actors/grid.js";
+import Primitive from "./actors/primitive.js";
 import co from "co";
 
 let ScriptManager = class {
@@ -46,10 +47,10 @@ let ScriptManager = class {
         
         let _Function = Function;
         let decoratedScript = "co(function *(){" + script.code + "\ndone();});";
-        decoratedScript = decoratedScript.replace(/texture\(/,"yield texture(");
-        decoratedScript = decoratedScript.replace(/fetchFileDialog\(/,"yield fetchFileDialog(");
+        decoratedScript = decoratedScript.replace(/texture\(/g,"yield texture(");
+        decoratedScript = decoratedScript.replace(/fetchFileDialog\(/g,"yield fetchFileDialog(");
         
-        script.fn = new _Function("done","co","BABYLON","scene","primitive","grid", "actor","color","picked","texture","data","target","fetchFileDialog",decoratedScript);
+        script.fn = new _Function("done","co","BABYLON","scene","primitive","grid", "actor","color","picked","texture","data","target","fetchFileDialog","nearest","user",decoratedScript);
         
         if(this.app.hud) {
             this.app.hud.updateWorldScripts(this.worldScripts);
@@ -73,11 +74,11 @@ let ScriptManager = class {
     // RUN A SCRIPT
     
     run(script,data = {}) {
-        
+
         if(script && script.fn) {
             
             try {
-                script.fn(this.app.actors.done,co,BABYLON,this.app.scene,this.primitive,this.grid, this.actor,this.color,this.app.pickedActor,this.texture,data,data.target,this.app.store.fetchFileDialog);
+                script.fn(this.app.actors.done,co,BABYLON,this.app.scene,this.primitive,this.grid, this.actor,this.color,this.app.pickedActor,this.texture,data,data.target,this.app.store.fetchFileDialog,this.app.actors.nearest,this.app.store.user);
             } catch(e) {
                 console.error("Script:",script.path,e);
             }
@@ -89,7 +90,7 @@ let ScriptManager = class {
     primitive() {
         let fn = BABYLON.MeshBuilder[arguments[0]];
         if(fn) {
-            let actor = new Actor(this.app);
+            let actor = new Primitive(this.app);
             actor.setPrimative(arguments);
             this.app.actors.add(actor);
             actor.create();

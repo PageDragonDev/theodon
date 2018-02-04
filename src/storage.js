@@ -2,7 +2,7 @@ import firebase from "firebase";
 import 'firebase/firestore';
 import co from "co";
 import uploadcare from 'uploadcare-widget';
-
+import _ from "lodash";
 
 let Store = class {
 
@@ -301,28 +301,53 @@ let Store = class {
     // WATCH ACTORS
 
     watchActors(onChange, onRemove) {
-
-        // WATCH SCRIPTS
-
+        
+        // LOAD ALL ACTORS AND SORT BY PRIORITY
+        
         let db = this.app.firestore();
-        db.collection("actors").where("wid", "==", this.worldId)
-            .onSnapshot(function(snapshot) {
-                snapshot.docChanges.forEach(function(change) {
+        let actors = [];
+        
+        db.collection("actors").where("wid", "==", this.worldId).get()
+        .then(querySnapshot => {
+            querySnapshot.forEach(function(doc) {
 
-                    let actorDef = change.doc.data();
-                    actorDef._id = change.doc.id;
-
-                    if (change.type === "added") {
-                        onChange(actorDef);
-                    }
-                    if (change.type === "modified") {
-                        onChange(actorDef);
-                    }
-                    if (change.type === "removed") {
-                        onRemove(actorDef);
-                    }
-                });
+                let actorDef = doc.data();
+                actorDef._id = doc.id;
+                
+                actors.push(actorDef);
             });
+            
+            actors = _.sortBy(actors,"priority");
+            actors.forEach(actorDef=>{
+                onChange(actorDef);
+            });
+            
+            // WATCH FOR ACTOR CHANGES
+
+            db.collection("actors").where("wid", "==", this.worldId)
+                .onSnapshot(function(snapshot) {
+                    snapshot.docChanges.forEach(function(change) {
+    
+                        let actorDef = change.doc.data();
+                        actorDef._id = change.doc.id;
+    
+                        if (change.type === "added") {
+                            onChange(actorDef);
+                        }
+                        if (change.type === "modified") {
+                            onChange(actorDef);
+                        }
+                        if (change.type === "removed") {
+                            onRemove(actorDef);
+                        }
+                    });
+                });
+            
+            
+        });
+        
+
+        
     }
 
     // WATCH PLACEMENTS
@@ -425,7 +450,7 @@ let Store = class {
         });
     }
 
-    fetchFileDialog() {
+    fetchFileDialog(folder="images") {
         
         return new Promise((resolve, reject) => {
             
@@ -452,7 +477,7 @@ let Store = class {
                     // STORE IMAGE
 
                     let ref = this.app.storage().ref();
-                    let imagePath = 'images/' + file.name;
+                    let imagePath = folder + '/' + file.name;
 
                     let imageRef = ref.child(imagePath);
                     imageRef.putString(data, 'data_url').then(result => {

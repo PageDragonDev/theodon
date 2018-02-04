@@ -73,6 +73,7 @@ class Grid extends Actor {
             instance.gridSize = _this.proxy.gridSize;
             instance.gridWidth = _this.proxy.gridWidth;
             instance.gridHeight = _this.proxy.gridHeight;
+            instance.priority = _this.priority;
 
             // PARENT
             
@@ -98,9 +99,9 @@ class Grid extends Actor {
         // SET PARENT
 
         if (this.proxy.parent) {
-            
             this.app.actors.doWhenLoaded(this.proxy.parent, (actor) => {
                 this.parent = actor;
+                console.log("PARENTING GRID", this)
             });
         }
         this._mesh.aid = this.id;
@@ -116,6 +117,7 @@ class Grid extends Actor {
         }
 
         if (this.gridType != "hex") {
+            console.log("MAKING GRID")
             
             let lines = [];
 
@@ -152,7 +154,7 @@ class Grid extends Actor {
                 lines.push(points);
             }
 
-            this._mesh = BABYLON.MeshBuilder.CreateLineSystem("ls", { lines: lines }, this.app.scene);
+            this._mesh = BABYLON.MeshBuilder.CreateLineSystem("grid", { lines: lines }, this.app.scene);
             this._mesh.isVisible = false;
 
             // PLACE GRID IN CORRECT SPOT... ACCOUNT FOR MAKING SURE GRID PASSES THROUGH 0,0
@@ -161,10 +163,12 @@ class Grid extends Actor {
             this.gridOffsetY = Math.floor(halfHeight / gridSize) * gridSize + padOffsetY;
             this._mesh.position.x -= this.gridOffsetX;
             this._mesh.position.z -= this.gridOffsetY;
+            this._mesh.position.x += this.proxy.position.x;
+            this._mesh.position.z += this.proxy.position.z;
 
             // SET Y HEIGHT OF GRID
 
-            let gridHeight = 1; //sceneState.cursor ? sceneState.cursor.position.y + 1 : 1;
+            let gridHeight = 2; //sceneState.cursor ? sceneState.cursor.position.y + 1 : 1;
 
             this._mesh.position.y = gridHeight;
             this._mesh.alpha = 1;
@@ -202,7 +206,7 @@ class Grid extends Actor {
     }
     
     placementOffset() {
-        return new BABYLON.Vector3(-this.gridOffsetX,0,-this.gridOffsetY);
+        return new BABYLON.Vector3(-this.gridOffsetX,2,-this.gridOffsetY);
     }
 
     makeHexGrid() {
@@ -213,14 +217,14 @@ class Grid extends Actor {
     
     gridPosition(v3) {
     	let gridSize = this.gridSize?this.gridSize:10;
-    	let offsetX = this.placementOffset().x;
-    	let offsetY = this.placementOffset().z;
+    	let offsetX = -this.gridOffsetX;
+    	let offsetY = -this.gridOffsetY;
     
     	if(this.ridType != "hex") {
     		return new BABYLON.Vector3(
-    			Math.floor((v3.x - offsetX)/gridSize)*gridSize + Math.round(gridSize/2) + offsetX,
+    			Math.floor((v3.x - offsetX)/gridSize)*gridSize + Math.round(gridSize/2) + offsetX + this.position.x,
     			v3.y,
-    			Math.floor((v3.z - offsetY)/gridSize)*gridSize + Math.round(gridSize/2) + offsetY);
+    			Math.floor((v3.z - offsetY)/gridSize)*gridSize + Math.round(gridSize/2) + offsetY + this.position.z);
     	} else {
     		let halfWidth = Math.round(this.gridWidth/2);
     		let halfHeight = Math.round(this.gridHeight/2);

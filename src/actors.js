@@ -2,6 +2,7 @@ import BABYLON from "babylonjs";
 import TWEEN from "tween.js";
 import Actor from "./actors/actor.js";
 import Grid from "./actors/grid.js";
+import Primitive from "./actors/primitive.js";
 
 let Actors = class {
     constructor(app) {
@@ -12,6 +13,7 @@ let Actors = class {
         this.whenLoaded = {};
         this.done = this.done.bind(this);
         this.doWhenLoaded = this.doWhenLoaded.bind(this);
+        this.nearest = this.nearest.bind(this);
         
         let _this = this;
         
@@ -79,7 +81,7 @@ let Actors = class {
     // SEND EVENT
         
     send(eventName,eventData) {
-        console.log("SEND",eventData)
+        console.log("SEND",eventData);
         let honored = 0;
         if(eventData.targetActor) { // THIS SHOULD BE TARGET, NOT TARGET ACTOR
             let res = eventData.target.trigger(eventName,eventData);
@@ -125,6 +127,9 @@ let Actors = class {
                 case('grid'):
                     actor = new Grid(this.app,def);
                     break;
+                case('primitive'):
+                    actor = new Primitive(this.app,def);
+                    break;
                 default:
                     actor = new Actor(this.app,def);
             }
@@ -134,7 +139,7 @@ let Actors = class {
         }
     }
     
-    done() { // TODO: Use Generator
+    done() { // TODO: Use Generator?
         this.actors.forEach(a=>a.done());
     }
     
@@ -145,6 +150,21 @@ let Actors = class {
         } else {
             this.whenLoaded[aid] = fn;
         }
+    }
+    
+    nearest(name,to) {
+        let closestActor = null;
+        let closestDistance = 9999999999;
+        
+        this.actors.forEach(actor=>{
+            let d = BABYLON.Vector3.Distance(to,actor.position);
+            if(actor.name.toLowerCase() == name.toLowerCase() && d < closestDistance) {
+                closestDistance = d;
+                closestActor = actor;
+            }
+        });
+        
+        return closestActor;
     }
     
 };

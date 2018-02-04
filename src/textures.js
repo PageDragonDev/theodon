@@ -23,7 +23,7 @@ let Textures = class {
             
             // CREATE TEXTURE
             
-            texture = new BABYLON.Texture(path,this.app.scene,false,false,BABYLON.Texture.NEAREST_SAMPLINGMODE,()=>{
+            texture = new BABYLON.Texture(path,this.app.scene,false,true,BABYLON.Texture.NEAREST_SAMPLINGMODE,()=>{
                 resolve(texture);
             });
             this.texturesById[path] = texture;

@@ -42,6 +42,7 @@ let TheodonHud = class {
         // HIDE HUD IN CASE IT"S SHOWING
         
         this.hideHUD();
+        this.app.disablePicking = true;
         
         // GUI PLANE
         
@@ -307,6 +308,7 @@ let TheodonHud = class {
     showActorHUD(actor,evt) {
         
         this.hideHUD();
+        this.app.disablePicking = true;
     
         // GUI PLANE
         
