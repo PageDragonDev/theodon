@@ -101,7 +101,6 @@ class Grid extends Actor {
         if (this.proxy.parent) {
             this.app.actors.doWhenLoaded(this.proxy.parent, (actor) => {
                 this.parent = actor;
-                console.log("PARENTING GRID", this)
             });
         }
         this._mesh.aid = this.id;
@@ -117,7 +116,6 @@ class Grid extends Actor {
         }
 
         if (this.gridType != "hex") {
-            console.log("MAKING GRID")
             
             let lines = [];
 
