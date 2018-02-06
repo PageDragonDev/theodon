@@ -83,7 +83,7 @@ let Actors = class {
     send(eventName,eventData) {
         console.log("SEND",eventData);
         let honored = 0;
-        if(eventData.targetActor) { // THIS SHOULD BE TARGET, NOT TARGET ACTOR
+        if(eventData.target) {
             let res = eventData.target.trigger(eventName,eventData);
             if(res) {honored++;}
         } else {
@@ -94,7 +94,7 @@ let Actors = class {
         }
         
         console.info("EVENT",eventName,"HONORED",honored,honored==1?"TIME":"TIMES");
-        
+        return eventData;
     }
     
     // ADD

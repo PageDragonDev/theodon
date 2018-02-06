@@ -111,10 +111,20 @@ let TheodonApp = class {
             if(!this.disablePicking) {
                 let pickResult = scene.pick(scene.pointerX, scene.pointerY);
                 if(pickResult.pickedMesh) {
-                    let actor = this.actors.actorsById[pickResult.pickedMesh.aid];
-                    if(actor) {
-                        pickResult.event = e;
-                        actor.pick(pickResult);
+                    
+                    // TRAVEL ANCESTORS UNTIL WE FIND AN ACTOR
+                    
+                    let currentMesh = pickResult.pickedMesh;
+                    while(!currentMesh.aid && currentMesh != null) {
+                        currentMesh = currentMesh.parent;
+                    }
+                    
+                    if(currentMesh) {
+                        let actor = this.actors.actorsById[currentMesh.aid];
+                        if(actor) {
+                            pickResult.event = e;
+                            actor.pick(pickResult);
+                        }
                     }
                 }
             }

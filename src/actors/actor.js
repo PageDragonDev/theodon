@@ -317,7 +317,6 @@ class Actor {
         // ONLY PICK IF NOT ALREADY PICKED, OTHERWISE UNPICK
         
         if(this.app._pickedActors.indexOf(this) < 0) {
-            console.log("ACTOR PICKED",evt);
             
             this.app._pickedActors.forEach(a=>{
                 this.app.hlLayer.removeMesh(a._mesh,BABYLON.Color3.Green());
@@ -332,8 +331,10 @@ class Actor {
         }
         
         // SEND PICK EVENT
-            
-        this.app.actors.send("pick",Object.assign({target:this},evt));
+        
+        console.log("SENDING",this);
+        let sent = this.app.actors.send("pick",Object.assign({target:this},evt));
+        console.log("SENT",sent);
         
     }
     
