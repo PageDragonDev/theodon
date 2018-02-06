@@ -316,26 +316,46 @@ class Actor {
         
         // ONLY PICK IF NOT ALREADY PICKED, OTHERWISE UNPICK
         
-        if(this.app._pickedActors.indexOf(this) < 0) {
+        if(this.app._pickedActors.indexOf(this) < 0 && evt.event.ctrlKey) {
             
-            this.app._pickedActors.forEach(a=>{
-                this.app.hlLayer.removeMesh(a._mesh,BABYLON.Color3.Green());
-            });
-            this.app._pickedActors = [this];
-            this.app.hlLayer.addMesh(this._mesh,BABYLON.Color3.Green());
+            this.highlight();
+            this.select();
+
         } else {
-            this.app._pickedActors.forEach(a=>{
-                this.app.hlLayer.removeMesh(a._mesh,BABYLON.Color3.Green());
-            });
+            this.unhighlight();
             this.app._pickedActors = [];
         }
         
         // SEND PICK EVENT
         
-        console.log("SENDING",this);
-        let sent = this.app.actors.send("pick",Object.assign({target:this},evt));
-        console.log("SENT",sent);
+        this.app.actors.send("pick",Object.assign({target:this},evt));
         
+    }
+    
+    select(add = false) {
+        
+        if(add) {
+            this.app._pickedActors.push(this);
+        } else {
+            this.app._pickedActors = _.filter(a=>a != this);
+        }
+        
+    }
+    
+    highlight(color=BABYLON.Color3.Green()) {
+        this.app._pickedActors.forEach(a=>{
+            this.app.hlLayer.removeMesh(a._mesh,BABYLON.Color3.Green());
+        });
+        this.app.hlLayer.addMesh(this._mesh,color);
+        this.mesh.getChildMeshes(false).forEach((m)=>{
+            this.app.hlLayer.addMesh(m,color);
+        });
+    }
+    
+    unhighlight() {
+        this.app._pickedActors.forEach(a=>{
+            this.app.hlLayer.removeMesh(a._mesh,BABYLON.Color3.Green());
+        });
     }
     
     remove() {

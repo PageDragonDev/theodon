@@ -24,8 +24,9 @@ let TheodonHud = class {
         // LISTEN FOR ACTIVATION KEY
         
         app.scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction({ trigger: BABYLON.ActionManager.OnKeyDownTrigger, parameter: " " },
-            () => {
-                if(!this.hudPlane) {
+            (e) => {
+
+                if(!this.hudPlane && e.sourceEvent.ctrlKey) {
                     this.showHUD(app);
                 } else {
                     this.hideHUD(app);
