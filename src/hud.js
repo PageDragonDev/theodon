@@ -389,6 +389,7 @@ let TheodonHud = class {
         
         hud.forEach((control,idx)=>{
             new Button(0,idx*35,150,30,control.label,()=>{
+                
                 if(control.script) {
                     let script = this.app.scripts.getScriptByPath(control.script);
                     evt.target = actor;

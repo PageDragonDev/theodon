@@ -107,7 +107,7 @@ let TheodonApp = class {
         // Setup Picking
         
         this.disablePicking = false;
-        this.renderTarget.addEventListener("pointerup", (e) => {
+        this.renderTarget.addEventListener("pointerdown", (e) => {
             
             if(!this.disablePicking && e.button == 0) {
                 let pickResult = scene.pick(scene.pointerX, scene.pointerY);
@@ -129,6 +129,12 @@ let TheodonApp = class {
                     }
                 }
             }
+        });
+        
+        // HANDLE WINDOW RESIZE
+        
+        window.addEventListener("resize", function () { // Watch for browser/canvas resize events
+                this.engine.resize();
         });
         
     }
