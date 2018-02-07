@@ -108,8 +108,8 @@ let TheodonApp = class {
         
         this.disablePicking = false;
         this.renderTarget.addEventListener("pointerup", (e) => {
-
-            if(!this.disablePicking) {
+            
+            if(!this.disablePicking && e.button == 0) {
                 let pickResult = scene.pick(scene.pointerX, scene.pointerY);
                 if(pickResult.pickedMesh) {
                     

@@ -83,7 +83,7 @@ class Actor {
         this.proxy.ambientColor = new BABYLON.Color3(def.ambientColor.r,def.ambientColor.g,def.ambientColorb);
         this.proxy.diffuseTexture = def.diffuseTexture;
         this.proxy.checkCollisions = def.checkCollisions;
-        this._priority = def._priority;
+        this._priority = def.priority;
         this._state = def.state?def.state:{};
         this.proxy.parent = def.parent;
         this.proxy.visible = typeof(def.visible) != 'undefined'?def.visible:true;
