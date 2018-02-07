@@ -214,20 +214,31 @@ class Grid extends Actor {
     }
     
     gridPosition(v3) {
+        
     	let gridSize = this.gridSize?this.gridSize:10;
-    	let offsetX = -this.gridOffsetX;
-    	let offsetY = -this.gridOffsetY;
-    
-    	if(this.ridType != "hex") {
-    		return new BABYLON.Vector3(
-    			Math.floor((v3.x - offsetX)/gridSize)*gridSize + Math.round(gridSize/2) + offsetX + this.position.x,
-    			v3.y,
-    			Math.floor((v3.z - offsetY)/gridSize)*gridSize + Math.round(gridSize/2) + offsetY + this.position.z);
+    	let offsetX = this.gridOffsetX;
+    	let offsetY = this.gridOffsetY;
+    	
+    	// CREATE TARGET POINT BASED ON PARENT
+    	
+    	let target;
+    	if(this.parent) {
+    	    target = new BABYLON.Vector3(v3.x-this.parent.position.x,v3.y-this.parent.position.y,v3.z-this.parent.position.z);
+    	} else {
+    	    target = new BABYLON.Vector3(v3.x,v3.y,v3.z);
+    	}
+        
+        let adjusted;
+    	if(this.gridType != "hex") {
+    		adjusted = new BABYLON.Vector3(
+    			Math.floor((target.x - offsetX - this.position.x)/gridSize)*gridSize + Math.round(gridSize/2) + offsetX + this.position.x,
+    			target.y,
+    			Math.floor((target.z - offsetY - this.position.z)/gridSize)*gridSize + Math.round(gridSize/2) + offsetY + this.position.z);
     	} else {
     		let halfWidth = Math.round(this.gridWidth/2);
     		let halfHeight = Math.round(this.gridHeight/2);
     
-    		let p = new HT.Point(v3.x + halfWidth,v3.z + halfHeight);
+    		let p = new HT.Point(target.x + halfWidth,target.z + halfHeight);
     		if(!this.hexGrid) {
     			this.makeHexGrid();
     		}
@@ -235,12 +246,13 @@ class Grid extends Actor {
     
     		let gp = new BABYLON.Vector3(
     			hex.MidPoint.X - halfWidth + offsetX,
-    			v3.y,
+    			target.y,
     			hex.MidPoint.Y - halfHeight + offsetY);
     
-    		return gp;
+    		adjusted = gp;
     	}
     
+        return adjusted;
     }
 
 }

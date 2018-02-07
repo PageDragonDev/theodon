@@ -56,6 +56,7 @@ class Actor {
         this.lastUpdated = 0;
         this._parent = null;
         this._state = {};
+        this._localState = {};
         this._priority = 0;
         
         if(def) {
@@ -184,11 +185,14 @@ class Actor {
             return;
         }
         this.lastUpdated = time;
+        
+        // GET TIME DELTA
+        
         let timeDiff = this.lastUpdated - time;
-        if(timeDiff < 0) {
-            timeDiff = 0;
+        if(timeDiff < 1000) {
+            timeDiff = 1000;
         }
-
+        
         if(def.position) {
             
             // GET OFFSET
@@ -373,6 +377,10 @@ class Actor {
         this.hasChanges;
     }
     
+    setLocalState(newState) {
+        this._localState = Object.assign(this._localState,newState);
+    }
+    
     // ON MESSAGE
     
     on(event,scriptPath,options) {
@@ -412,6 +420,10 @@ class Actor {
         this.app.hud.showEventHUD(this,hud,data);
     }
     
+    hideHUD() {
+        this.app.hud.hideHUD();
+    }
+    
     // PROPS
     
     get id() {
@@ -443,6 +455,10 @@ class Actor {
     
     get state() {
         return this._state;
+    }
+    
+    get localState() {
+        return this._localState;
     }
     
     get priority() {

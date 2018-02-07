@@ -107,7 +107,8 @@ let TheodonApp = class {
         // Setup Picking
         
         this.disablePicking = false;
-        this.renderTarget.addEventListener("click", (e) => {
+        this.renderTarget.addEventListener("pointerup", (e) => {
+
             if(!this.disablePicking) {
                 let pickResult = scene.pick(scene.pointerX, scene.pointerY);
                 if(pickResult.pickedMesh) {
@@ -130,13 +131,20 @@ let TheodonApp = class {
             }
         });
         
-        
     }
     
     get pickedActor() {
         if(this._pickedActors.length) {
             return this._pickedActors[0];
         }
+    }
+    
+    marker(v3,color = BABYLON.Color3.Green()) {
+
+        let sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 2}, this.scene);
+        sphere.position = v3;
+        sphere.material = new BABYLON.StandardMaterial("material", this.scene);
+        sphere.material.diffuseColor = color;
     }
 
 };
