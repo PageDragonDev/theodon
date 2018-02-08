@@ -21,7 +21,7 @@ let Store = class {
         if(config) {
             this.config = config;
         }
-        this.worldId = config.worldId;
+        this.worldId = this.config.worldId;
         delete this.config.worldId;
         
         this.app = firebase.initializeApp(this.config, instanceId);
