@@ -127,7 +127,7 @@ let TheodonApp = class {
         
         // HANDLE WINDOW RESIZE
         
-        window.addEventListener("resize", function () { // Watch for browser/canvas resize events
+        window.addEventListener("resize", ()=>{ // Watch for browser/canvas resize events
                 this.engine.resize();
         });
         
