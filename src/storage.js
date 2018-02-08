@@ -16,7 +16,7 @@ let Store = class {
             projectId: target.dataset["projectid"],
             storageBucket: target.dataset["storagebucket"],
             messagingSenderId: target.dataset["messagingsenderid"],
-            worldId: target.dataset["messagingsenderid"]
+            worldId: target.dataset["world"]
         };
         if(config) {
             this.config = config;
