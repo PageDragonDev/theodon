@@ -15,12 +15,15 @@ let Store = class {
             databaseURL: target.dataset["databaseurl"],
             projectId: target.dataset["projectid"],
             storageBucket: target.dataset["storagebucket"],
-            messagingSenderId: target.dataset["messagingsenderid"]
+            messagingSenderId: target.dataset["messagingsenderid"],
+            worldId: target.dataset["messagingsenderid"]
         };
         if(config) {
             this.config = config;
         }
-        this.worldId = target.dataset["world"];
+        this.worldId = config.worldId;
+        delete this.config.worldId;
+        
         this.app = firebase.initializeApp(this.config, instanceId);
         this.profile = null;
         this.fetchFileDialog = this.fetchFileDialog.bind(this);
