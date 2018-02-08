@@ -1,4 +1,4 @@
-let theodon = require("./theodon.js");
+import initRenderTarget from "./theodon.js";
 
 let initTheodon = function(config = null,rt = null) {
     
@@ -15,10 +15,10 @@ let initTheodon = function(config = null,rt = null) {
         // INIT EACH RENDER TARGET
     
         renderTargets.forEach((rt)=>{
-            theodon.initRenderTarget(rt);
+            initRenderTarget(rt);
         });
     } else {
-        theodon.initRenderTarget(rt,config);
+        initRenderTarget(rt,config);
     }
     
 };
