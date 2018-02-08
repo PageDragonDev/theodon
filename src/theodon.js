@@ -20,12 +20,12 @@ let TheodonApp = class {
     
     // INIT APP BY SETTING UP STORAGE
     
-    init() {
+    init(config = null) {
         let app = this;
         
         // SETUP STORE
         
-        let store = new Store(app.renderTarget, app.instanceId, this);
+        let store = new Store(app.renderTarget, app.instanceId, this, config);
         this.store = store;
         
         // SYNCRONOUSLY  INITALIZE APP
@@ -159,14 +159,15 @@ let theoApps = {};
 
 // GATHERS PROPERTIES FROM PASSED IN ELEMENT AND SETS UP PRE-3D ENV
 
-exports.initRenderTarget = (target) => {
+exports.initRenderTarget = (target, config) => {
     console.log("Theodon Initializing",target.dataset);
+    console.log("Theodon Config",config);
     
     // CREATE THEODON APP
 
     let instanceId = uuidv1();    
     let theoApp = new TheodonApp(instanceId, target);
     theoApps[instanceId] = theoApp;
-    theoApp.init();
+    theoApp.init(config);
     return theoApp;
 };

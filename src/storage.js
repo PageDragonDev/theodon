@@ -6,7 +6,7 @@ import _ from "lodash";
 
 let Store = class {
 
-    constructor(target, instanceId, theodonApp) {
+    constructor(target, instanceId, theodonApp, config) {
         this.theodonApp = theodonApp;
         this.instanceId = instanceId;
         this.config = {
@@ -17,6 +17,9 @@ let Store = class {
             storageBucket: target.dataset["storagebucket"],
             messagingSenderId: target.dataset["messagingsenderid"]
         };
+        if(config) {
+            this.config = config;
+        }
         this.worldId = target.dataset["world"];
         this.app = firebase.initializeApp(this.config, instanceId);
         this.profile = null;
