@@ -1,0 +1,1 @@
+{"code":{"value":"// GET GROUND\n\nlet ground = nearest(\"ground\",target.position);\n\n// SET TOG TO MOVE... THIS IS PICED UP BY Maps/Pick Map\n\nground.localState.actorToMove = target;\ntarget.hideHUD();","type":"string"},"path":{"value":"Togs/Begin Move","type":"string"},"wid":{"value":"rTVGoduy0VwBRjV0segL","type":"string"},"name":{"value":"Begin Move","type":"string"}}

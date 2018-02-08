@@ -50,7 +50,7 @@ let ScriptManager = class {
         decoratedScript = decoratedScript.replace(/texture\(/g,"yield texture(");
         decoratedScript = decoratedScript.replace(/fetchFileDialog\(/g,"yield fetchFileDialog(");
         
-        script.fn = new _Function("done","co","BABYLON","scene","primitive","grid", "actor","color","picked","texture","data","target","fetchFileDialog","nearest","user",decoratedScript);
+        script.fn = new _Function("done","co","BABYLON","scene","primitive","grid", "actor","color","picked","texture","data","target","fetchFileDialog","nearest","user","camera",decoratedScript);
         
         if(this.app.hud) {
             this.app.hud.updateWorldScripts(this.worldScripts);
@@ -78,7 +78,7 @@ let ScriptManager = class {
         if(script && script.fn) {
             
             try {
-                script.fn(this.app.actors.done,co,BABYLON,this.app.scene,this.primitive,this.grid, this.actor,this.color,this.app.pickedActor,this.texture,data,data.target,this.app.store.fetchFileDialog,this.app.actors.nearest,this.app.store.user);
+                script.fn(this.app.actors.done,co,BABYLON,this.app.scene,this.primitive,this.grid, this.actor,this.color,this.app.pickedActor,this.texture,data,data.target,this.app.store.fetchFileDialog,this.app.actors.nearest,this.app.store.user,this.app.camera);
             } catch(e) {
                 console.error("Script:",script.path,e);
             }
@@ -139,7 +139,13 @@ let ScriptManager = class {
     // RUN A SCRIPT WHEN IT'S LOADED
     
     runWhenLoaded(path) {
-        this.whenLoaded.push({path:path,ran:false});
+        let script = this.getScriptByPath(path);
+        if(!script) {
+            this.whenLoaded.push({path:path,ran:false});
+        } else {
+            script.ran = true;
+            this.run(script);
+        }
     }
     
     // REMOVE A SCRIPT

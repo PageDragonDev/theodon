@@ -6,7 +6,8 @@ import _ from "lodash";
 
 let Store = class {
 
-    constructor(target, instanceId) {
+    constructor(target, instanceId, theodonApp) {
+        this.theodonApp = theodonApp;
         this.instanceId = instanceId;
         this.config = {
             apiKey: target.dataset["apikey"],
@@ -321,6 +322,11 @@ let Store = class {
             actors.forEach(actorDef=>{
                 onChange(actorDef);
             });
+            
+            // CALL POPULATED EVENT
+        
+            console.log("Running pop")
+            this.theodonApp.scripts.runWhenLoaded("World/Populated");
             
             // WATCH FOR ACTOR CHANGES
 

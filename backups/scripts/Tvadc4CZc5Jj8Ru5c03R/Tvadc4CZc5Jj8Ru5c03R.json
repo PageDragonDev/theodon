@@ -1,0 +1,1 @@
+{"wid":{"value":"rTVGoduy0VwBRjV0segL","type":"string"},"name":{"value":"Toggle","type":"string"},"code":{"value":"let grid = actor(target.state.grid);\n\nif(!grid) {\n    alert(\"Can't find grid!\");\n    return;\n}\n\ngrid.visible = !grid.visible;","type":"string"},"path":{"value":"Maps/Grid/Toggle","type":"string"}}

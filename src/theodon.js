@@ -25,7 +25,7 @@ let TheodonApp = class {
         
         // SETUP STORE
         
-        let store = new Store(app.renderTarget, app.instanceId);
+        let store = new Store(app.renderTarget, app.instanceId, this);
         this.store = store;
         
         // SYNCRONOUSLY  INITALIZE APP
@@ -51,13 +51,11 @@ let TheodonApp = class {
         
         // create a FreeCamera, and set its position to (x:0, y:5, z:-10)
         this.camera = new BABYLON.FreeCamera('camera', new BABYLON.Vector3(0, 50,-100), this.scene);
-        this.camera.ellipsoid = new BABYLON.Vector3(10, 10, 10);
         this.camera.speed = 4;
         this.camera.keysUp = [38,87]; // W and UP
         this.camera.keysDown = [40,83]; // A and UP
         this.camera.keysLeft = [37,65]; // S and UP
         this.camera.keysRight = [39,68]; // D and UP
-        this.camera.checkCollisions = true;
     
         // target the camera to scene origin
         this.camera.setTarget(BABYLON.Vector3.Zero());
@@ -100,15 +98,11 @@ let TheodonApp = class {
         
         this.hlLayer = new BABYLON.HighlightLayer("hl1", scene);
         
-        // Run World onLoad
-        
-        this.scripts.runWhenLoaded("World/On Load");
-        
         // Setup Picking
         
         this.disablePicking = false;
         this.renderTarget.addEventListener("pointerdown", (e) => {
-            
+
             if(!this.disablePicking && e.button == 0) {
                 let pickResult = scene.pick(scene.pointerX, scene.pointerY);
                 if(pickResult.pickedMesh) {
@@ -136,6 +130,10 @@ let TheodonApp = class {
         window.addEventListener("resize", function () { // Watch for browser/canvas resize events
                 this.engine.resize();
         });
+        
+        // Run World onLoad
+        
+        this.scripts.runWhenLoaded("World/On Load");
         
     }
     
@@ -170,4 +168,5 @@ exports.initRenderTarget = (target) => {
     let theoApp = new TheodonApp(instanceId, target);
     theoApps[instanceId] = theoApp;
     theoApp.init();
+    return theoApp;
 };

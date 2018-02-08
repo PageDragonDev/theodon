@@ -1,0 +1,1 @@
+{"code":{"value":"let grid = actor(target.state.grid);\n\nif(!grid) {\n    alert(\"Can't find grid!\");\n    return;\n}\n\ngrid.gridSize += data.inc;\n","type":"string"},"path":{"value":"Maps/Grid/Size Grid","type":"string"},"wid":{"value":"rTVGoduy0VwBRjV0segL","type":"string"},"name":{"value":"Size Grid","type":"string"}}

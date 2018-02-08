@@ -2,7 +2,7 @@
   "name": "theodon",
   "version": "1.0.0",
   "description": "Theodon 3D/VR Programmable Environment",
-  "main": "dist/theodon.js",
+  "main": "dist/index.js",
   "scripts": {
     "watch": "webpack --config webpack.config.js -d --watch",
     "build": "webpack --config webpack.config.js"

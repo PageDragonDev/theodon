@@ -382,6 +382,7 @@ let TheodonHud = class {
         this.hudPlane.parent = this.app.camera;
         this.hudPlane.position.z = 1.2;
         this.hudPlane.position.x = 0;
+        
     
         // GUI TEXTURE
         
@@ -396,9 +397,10 @@ let TheodonHud = class {
                     if(control.data) {
                         evt = Object.assign(evt,control.data);
                     }
+                    
                     this.app.scripts.run(script,evt);
                 }
-            },this.hudTexture);
+            },control.background?control.background:"green",control.color?control.color:"white",this.hudTexture);
         });
         
     }
@@ -456,15 +458,15 @@ class Input extends Control {
 }
 
 class Button extends Control {
-    constructor(x,y,width,height,value,fn,container) {
+    constructor(x,y,width,height,value,fn,background="green",color="white",container) {
         super();
         this.control = BABYLON.GUI.Button.CreateSimpleButton(x + y + "button", value);
 
         this.control.width = this.pxWidth(width);
         this.control.height = this.pxHeight(height);
-        this.control.color = "white";
+        this.control.color = color;
         this.control.cornerRadius = 20;
-        this.control.background = "green";
+        this.control.background = background;
         this.control.fontSize = 20;
         this.control.thickness = 1;
         this.control.top = this.pxY(y,height);
