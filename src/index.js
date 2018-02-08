@@ -25,6 +25,6 @@ let initTheodon = function(config = null,rt = null) {
 
 // EXPORT INIT, BUT ALSO CALL IT TO PICKUP data-theodon ELEMENTS
 
-exports.initTheodon = initTheodon;
+export default  initTheodon;
 initTheodon();
 
