@@ -159,7 +159,7 @@ let theoApps = {};
 
 // GATHERS PROPERTIES FROM PASSED IN ELEMENT AND SETS UP PRE-3D ENV
 
-exports.initRenderTarget = (target, config) => {
+let initRenderTarget = (target, config) => {
     console.log("Theodon Initializing",target.dataset);
     console.log("Theodon Config",config);
     
@@ -171,3 +171,5 @@ exports.initRenderTarget = (target, config) => {
     theoApp.init(config);
     return theoApp;
 };
+
+export default initRenderTarget;
