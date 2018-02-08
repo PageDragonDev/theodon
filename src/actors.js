@@ -4,7 +4,7 @@ import Actor from "./actors/actor.js";
 import Grid from "./actors/grid.js";
 import Primitive from "./actors/primitive.js";
 
-let Actors = class {
+export class Actors{
     constructor(app) {
         this.app = app;
         this.actors = [];
@@ -167,6 +167,4 @@ let Actors = class {
         return closestActor;
     }
     
-};
-exports.Actors = Actors;
-export default Actors;
+}
