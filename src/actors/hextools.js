@@ -1,5 +1,6 @@
 
-let HT = HT || {};
+let HT = {};
+
 /**
  * A Point is simply x and y coordinates
 
