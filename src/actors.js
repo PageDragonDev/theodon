@@ -169,3 +169,4 @@ let Actors = class {
     
 };
 exports.Actors = Actors;
+export default Actors;
