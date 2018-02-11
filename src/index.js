@@ -1,6 +1,6 @@
 import initRenderTarget from "./theodon.js";
 
-let initTheodon = function(config = null,rt = null) {
+let initTheodon = function(config = null,rt = null,nocache = true) {
     
     // BOOSTRAP RENDER TARGETS IF WE WERE NOT GIVEN ANY
 
@@ -15,10 +15,10 @@ let initTheodon = function(config = null,rt = null) {
         // INIT EACH RENDER TARGET
     
         renderTargets.forEach((rt)=>{
-            initRenderTarget(rt);
+            initRenderTarget(rt,null,nocache);
         });
     } else {
-        initRenderTarget(rt,config);
+        initRenderTarget(rt,config,nocache);
     }
     
 };

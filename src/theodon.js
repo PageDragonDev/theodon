@@ -161,7 +161,7 @@ let theoApps = {};
 
 // GATHERS PROPERTIES FROM PASSED IN ELEMENT AND SETS UP PRE-3D ENV
 
-let initRenderTarget = (target, config) => {
+let initRenderTarget = (target, config, nocache) => {
     console.log("Theodon Initializing",target.dataset);
     console.log("Theodon Config",config);
     
@@ -169,7 +169,10 @@ let initRenderTarget = (target, config) => {
 
     let instanceId = uuidv1();    
     let theoApp = new TheodonApp(instanceId, target);
-    theoApps[instanceId] = theoApp;
+    if(nocache != true) {
+        console.log("Not caching Theodon instance.");
+        theoApps[instanceId] = theoApp;
+    }
     theoApp.init(config);
     return theoApp;
 };
