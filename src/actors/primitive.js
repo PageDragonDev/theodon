@@ -103,6 +103,7 @@ class Primitive extends Actor {
             
             // STATE
             
+            console.log("Saving state:",_this.state);
             instance.state = _this._state;
             
             return yield _this.app.store.saveActor(_this._id,instance);

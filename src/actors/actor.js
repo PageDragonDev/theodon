@@ -395,6 +395,7 @@ class Actor {
     on(event,scriptPath,options) {
         let onEvent = {};
         onEvent["_"+event] = {path:scriptPath,options:options?options:null};
+        console.log("Setting Event:",event)
         this.setState(onEvent);
     }
     
