@@ -167,4 +167,8 @@ export class Actors{
         return closestActor;
     }
     
+    findByTID(tid) {
+        this.actors.forEach(a=>a.state.tid == tid);
+    }
+    
 }

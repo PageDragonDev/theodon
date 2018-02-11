@@ -170,7 +170,7 @@ let initRenderTarget = (target, config, nocache) => {
     let instanceId = uuidv1();    
     let theoApp = new TheodonApp(instanceId, target);
     if(nocache != true) {
-        console.log("Not caching Theodon instance.");
+        console.log("Caching Theodon instance.");
         theoApps[instanceId] = theoApp;
     }
     theoApp.init(config);
