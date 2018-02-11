@@ -294,7 +294,7 @@ let TheodonHud = class {
                 btnRemove.top = top + 7;
                 btnRemove.left = offset + 100;
                 btnRemove.onPointerUpObservable.add(()=>{
-                    if(!confirm("Remove Script: " + node.name + ">")) {
+                    if(!confirm("Remove Script: " + node.name + "?")) {
                         return;
                     }
                     _this.app.store.removeWorldScript(node.script);
