@@ -61,7 +61,7 @@ let ScriptManager = class {
         let test = this.whenLoaded.find(w=>w.path == script.path);
         if(test && !test.ran) {
             test.ran = true;
-            this.run(script);
+            this.run(script,test.data);
         }
     }
     
@@ -138,13 +138,13 @@ let ScriptManager = class {
     
     // RUN A SCRIPT WHEN IT'S LOADED
     
-    runScript(path) {
+    runScript(path,data) {
         let script = this.getScriptByPath(path);
         if(!script) {
-            this.whenLoaded.push({path:path,ran:false});
+            this.whenLoaded.push({path:path,ran:false,data:data});
         } else {
             script.ran = true;
-            this.run(script);
+            this.run(script,data);
         }
     }
     
