@@ -78,7 +78,7 @@ let Editor = class {
         
         // SET WRAPPER POSITION AND SIZE
         
-        this.wrapper.setAttribute("style","background-color:#ababab;border:solid 1px #ffffff;display:flex;flex-direction:column;z-index:1000,position:absolute;left:" + rect.left + margin + "px;top:" + rect.top + margin +  "px;width:" + width + "px;height:" + height + "px");
+        this.wrapper.setAttribute("style","background-color:#ababab;border:solid 1px #ffffff;display:flex;flex-direction:column;z-index:1000;position:absolute;left:" + rect.left + margin + "px;top:" + rect.top + margin +  "px;width:" + width + "px;height:" + height + "px");
         
         this.editor = ace.edit(this.container);
         this.editor.getSession().setMode('ace/mode/javascript');
