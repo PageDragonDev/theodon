@@ -168,7 +168,7 @@ export class Actors{
     }
     
     findByTID(tid) {
-        this.actors.forEach(a=>a.state.tid == tid);
+        return this.actors.find(a=>a.state.tid == tid);
     }
     
 }
