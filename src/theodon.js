@@ -137,12 +137,6 @@ let TheodonApp = class {
         
         this.scripts.runScript("World/On Load");
         
-        // CALL EXTERNAL SCENE LOADED
-            
-        if(this.config.onSceneLoaded) {
-            this.config.onSceneLoaded(this);
-        }
-        
     }
     
     get pickedActor() {

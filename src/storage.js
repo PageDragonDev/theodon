@@ -333,6 +333,12 @@ let Store = class {
         
             this.theodonApp.scripts.runScript("World/Populated");
             
+            // CALL EXTERNAL SCENE LOADED
+            
+            if(this.app.config.onSceneLoaded) {
+                this.app.config.onSceneLoaded(this);
+            }
+            
             // WATCH FOR ACTOR CHANGES
 
             db.collection("actors").where("wid", "==", this.worldId)
