@@ -22,6 +22,8 @@ let TheodonApp = class {
     
     init(config = null) {
         let app = this;
+        this.config = Object.assign({},config);
+        console.log("CONFIG:",this.config);
         
         // SETUP STORE
         
@@ -134,6 +136,12 @@ let TheodonApp = class {
         // Run World onLoad
         
         this.scripts.runWhenLoaded("World/On Load");
+        
+        // CALL EXTERNAL SCENE LOADED
+            
+        if(this.app.config.onSceneLoaded) {
+            this.app.config.onSceneLoaded(this);
+        }
         
     }
     
