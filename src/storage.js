@@ -331,7 +331,7 @@ let Store = class {
             
             // CALL POPULATED EVENT
         
-            this.theodonApp.scripts.runWhenLoaded("World/Populated");
+            this.theodonApp.scripts.runScript("World/Populated");
             
             // WATCH FOR ACTOR CHANGES
 

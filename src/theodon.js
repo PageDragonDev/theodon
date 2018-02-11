@@ -135,7 +135,7 @@ let TheodonApp = class {
         
         // Run World onLoad
         
-        this.scripts.runWhenLoaded("World/On Load");
+        this.scripts.runScript("World/On Load");
         
         // CALL EXTERNAL SCENE LOADED
             

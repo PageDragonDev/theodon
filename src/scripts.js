@@ -138,7 +138,7 @@ let ScriptManager = class {
     
     // RUN A SCRIPT WHEN IT'S LOADED
     
-    runWhenLoaded(path) {
+    runScript(path) {
         let script = this.getScriptByPath(path);
         if(!script) {
             this.whenLoaded.push({path:path,ran:false});
