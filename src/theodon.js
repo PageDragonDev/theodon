@@ -139,8 +139,8 @@ let TheodonApp = class {
         
         // CALL EXTERNAL SCENE LOADED
             
-        if(this.app.config.onSceneLoaded) {
-            this.app.config.onSceneLoaded(this);
+        if(this.config.onSceneLoaded) {
+            this.config.onSceneLoaded(this);
         }
         
     }
