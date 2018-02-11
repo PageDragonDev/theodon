@@ -224,6 +224,7 @@ let Store = class {
         let db = this.app.firestore();
         let actorsRef = db.collection("actors");
         instance.wid = this.worldId;
+        
         return co(function*() {
             yield actorsRef.doc(aid).set(instance);
         });

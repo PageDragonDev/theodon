@@ -383,7 +383,7 @@ class Actor {
     
     setState(newState) {
         this._state = Object.assign(this._state,newState);
-        this.hasChanges;
+        this.hasChanges = true;
     }
     
     setLocalState(newState) {
@@ -395,7 +395,7 @@ class Actor {
     on(event,scriptPath,options) {
         let onEvent = {};
         onEvent["_"+event] = {path:scriptPath,options:options?options:null};
-        console.log("Setting Event:",event)
+        
         this.setState(onEvent);
     }
     
