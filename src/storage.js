@@ -335,8 +335,8 @@ let Store = class {
             
             // CALL EXTERNAL SCENE LOADED
             
-            if(this.app.config.onSceneLoaded) {
-                this.app.config.onSceneLoaded(this);
+            if(this.theodonApp.config.onSceneLoaded) {
+                this.theodonApp.config.onSceneLoaded(this);
             }
             
             // WATCH FOR ACTOR CHANGES
