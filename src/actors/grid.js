@@ -254,7 +254,37 @@ class Grid extends Actor {
     
         return adjusted;
     }
+    
+    highlightGrid(v3) {
+        // GET GRID POSITION
+        
+        let gp = this.gridPosition(v3);
+        
+        if(this.hlGrid) {
+            if(this.hlGrid.position.x == gp.x && this.hlGrid.position.y == gp.y && this.hlGrid.position.z == gp.z) {
+                return;
+            }
+        } else {
+            this.hlGrid = BABYLON.MeshBuilder.CreateBox("highlight grid", {width:this.gridSize,height:1,depth:this.gridSize},this.app.scene);
+            this.hlGrid.isPickable = false;
+            this.hlGrid.material = new BABYLON.StandardMaterial("highlight material", this.scene);
+            this.hlGrid.material.diffuseColor = new BABYLON.Color3(0.0, 1.0, 1.0);
+            this.hlGrid.visibility = 0.2;
+        }
+        
+        // POSITION BOX
+        
+        gp.y = v3.y;
+        this.hlGrid.position = gp;
+    
+    }
 
+    clearGridHighlights() {
+        if(this.hlGrid) {
+            this.hlGrid.dispose();
+            this.hlGrid = null;
+        }
+    }
 }
 
 export default Grid;

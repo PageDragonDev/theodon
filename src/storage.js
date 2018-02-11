@@ -331,7 +331,6 @@ let Store = class {
             
             // CALL POPULATED EVENT
         
-            console.log("Running pop")
             this.theodonApp.scripts.runWhenLoaded("World/Populated");
             
             // WATCH FOR ACTOR CHANGES

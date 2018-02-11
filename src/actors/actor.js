@@ -433,6 +433,44 @@ class Actor {
         this.app.hud.hideHUD();
     }
     
+    // POINTER OVER
+    
+    onPointerMove(fn) {
+        
+        
+        if(fn) {
+            this.pointerMoveListener = (e) => {
+                let pickResult = this.app.scene.pick(this.app.scene.pointerX, this.app.scene.pointerY);
+                if(pickResult.pickedMesh) {
+                    
+                    
+                    // TRAVEL ANCESTORS UNTIL WE FIND AN ACTOR
+                    
+                    let currentMesh = pickResult.pickedMesh;
+                    while(!currentMesh.aid && currentMesh != null) {
+                        currentMesh = currentMesh.parent;
+                    }
+                    
+                    if(currentMesh) {
+                        
+                        let actor = this.app.actors.actorsById[currentMesh.aid];
+                        if(actor) {
+                            
+                            pickResult.event = e;
+                            if(actor.id == this.id) {
+                                fn(pickResult);
+                            }
+                        }
+                    }
+                }
+            };
+            this.app.renderTarget.addEventListener("pointermove", this.pointerMoveListener);
+        } else {
+            this.app.renderTarget.removeEventListener("pointermove",this.pointerMoveListener);
+            this.pointerMoveListener = null;
+        }
+    }
+    
     // PROPS
     
     get id() {
