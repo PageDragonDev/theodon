@@ -1,5 +1,6 @@
 import BABYLON from "babylonjs";
 import uuidv1 from "uuid/v1";
+import _ from "lodash";
 
 let Textures = class {
     constructor(app) {
@@ -29,6 +30,13 @@ let Textures = class {
             this.texturesById[path] = texture;
             
         });
+    }
+    
+    dispose() {
+        _.forOwn(this.texturesById, (value) => {
+            console.log("Disposing Texture:",value);
+            value.dispose();
+        } );
     }
 };
 export default Textures;
