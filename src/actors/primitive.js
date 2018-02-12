@@ -131,6 +131,7 @@ class Primitive extends Actor {
                 for(let i = 1; i < _this.primitive.length;i++) {
                     args.push(_this.primitive[i]);
                 }
+                args.push(_this.app.scene);
                 
                 _this._mesh = fn.apply(null,args);
                 _this._mesh.aid = _this.id;
