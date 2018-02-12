@@ -16,13 +16,16 @@ let Store = class {
             projectId: target.dataset["projectid"],
             storageBucket: target.dataset["storagebucket"],
             messagingSenderId: target.dataset["messagingsenderid"],
-            worldId: target.dataset["world"]
+            worldId: target.dataset["world"],
+            sceneId: target.dataset["scene"]
         };
         if(config) {
             this.config = config;
         }
         this.worldId = this.config.worldId;
+        this.sceneId = this.config.sceneId;
         delete this.config.worldId;
+        delete this.config.sceneId;
         
         this.app = firebase.initializeApp(this.config, instanceId);
         this.profile = null;
@@ -224,6 +227,9 @@ let Store = class {
         let db = this.app.firestore();
         let actorsRef = db.collection("actors");
         instance.wid = this.worldId;
+        if(this.sceneId) {
+            instance.sid = this.sceneId;
+        }
         
         return co(function*() {
             yield actorsRef.doc(aid).set(instance);
@@ -314,8 +320,13 @@ let Store = class {
         
         let db = this.app.firestore();
         let actors = [];
-        
-        db.collection("actors").where("wid", "==", this.worldId).get()
+        let collection;
+        if(this.sceneId) {
+            collection = db.collection("actors").where("wid", "==", this.worldId).where("sid", "==", this.sceneId);
+        } else {
+            collection = db.collection("actors").where("wid", "==", this.worldId);
+        }
+        collection.get()
         .then(querySnapshot => {
             querySnapshot.forEach(function(doc) {
 
@@ -342,24 +353,23 @@ let Store = class {
             
             // WATCH FOR ACTOR CHANGES
 
-            db.collection("actors").where("wid", "==", this.worldId)
-                .onSnapshot(function(snapshot) {
-                    snapshot.docChanges.forEach(function(change) {
-    
-                        let actorDef = change.doc.data();
-                        actorDef._id = change.doc.id;
-    
-                        if (change.type === "added") {
-                            onChange(actorDef);
-                        }
-                        if (change.type === "modified") {
-                            onChange(actorDef);
-                        }
-                        if (change.type === "removed") {
-                            onRemove(actorDef);
-                        }
-                    });
+            collection.onSnapshot(function(snapshot) {
+                snapshot.docChanges.forEach(function(change) {
+
+                    let actorDef = change.doc.data();
+                    actorDef._id = change.doc.id;
+
+                    if (change.type === "added") {
+                        onChange(actorDef);
+                    }
+                    if (change.type === "modified") {
+                        onChange(actorDef);
+                    }
+                    if (change.type === "removed") {
+                        onRemove(actorDef);
+                    }
                 });
+            });
             
             
         });
