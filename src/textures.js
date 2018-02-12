@@ -37,6 +37,7 @@ let Textures = class {
             console.log("Disposing Texture:",value);
             value.dispose();
         } );
+        this.texturesById = {};
     }
 };
 export default Textures;
