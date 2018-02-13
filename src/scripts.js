@@ -101,9 +101,9 @@ let ScriptManager = class {
     
     // Grid Script Helper
     
-    grid(parent,width,height,gridSize) {
+    grid(parent,width,height,gridSize=20) {
         let actor = new Grid(this.app, {
-            name:this.name + "grid",
+            name:"grid",
             parent:this.parent,
             gridType:"square",
             gridSize:gridSize,

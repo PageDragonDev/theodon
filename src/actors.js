@@ -176,4 +176,8 @@ export class Actors{
         return this.actors.find(a=>a.state.tid == tid);
     }
     
+    named(name) {
+        return this.actors.filter(a=>name == name);
+    }
+    
 }
