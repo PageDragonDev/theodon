@@ -177,7 +177,7 @@ export class Actors{
     }
     
     named(name) {
-        return this.actors.filter(a=>name == name);
+        return this.actors.filter(a=>a.name == name);
     }
     
 }
