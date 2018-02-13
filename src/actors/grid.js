@@ -121,7 +121,7 @@ class Grid extends Actor {
 
             let halfWidth = Math.round(this.proxy.gridWidth / 2);
             let halfHeight = Math.round(this.proxy.gridHeight / 2);
-            let gridSize = this.proxy.gridSize ? this.proxy.gridSize : 10;
+            let gridSize = this.proxy.gridSize ? this.proxy.gridSize : 20;
             let xRun = this.proxy.gridWidth;
             let yRun = this.proxy.gridHeight;
 
@@ -208,14 +208,14 @@ class Grid extends Actor {
     }
 
     makeHexGrid() {
-        let gridSize = this.proxy.gridSize ? this.proxy.gridSize : 10;
+        let gridSize = this.proxy.gridSize ? this.proxy.gridSize : 20;
         HT.setHexGridWithSideLengthZAndRatio(gridSize, 1.1547005383792515290182975610039); // USE r = 1.1547005383792515290182975610039 or r= 1.333
         this.hexGrid = new HT.Grid(this.proxy.gridWidth, this.proxy.gridHeight);
     }
     
     gridPosition(v3) {
         
-    	let gridSize = this.gridSize?this.gridSize:10;
+    	let gridSize = this.gridSize?this.gridSize:20;
     	let offsetX = this.gridOffsetX;
     	let offsetY = this.gridOffsetY;
     	

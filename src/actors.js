@@ -153,6 +153,11 @@ export class Actors{
     }
     
     nearest(name,to) {
+        if(!to) {
+            console.warn("nearest() 'to' not defined.");
+            return null;
+        }
+        
         let closestActor = null;
         let closestDistance = 9999999999;
         
