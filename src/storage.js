@@ -34,7 +34,7 @@ let Store = class {
             delete initConfig.sceneId;
             this.app = firebase.initializeApp(this.config, instanceId);
         } else {
-            this.app == this.config.firebaseApp;
+            this.app = this.config.firebaseApp;
         }
         
         this.profile = null;
