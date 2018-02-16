@@ -23,15 +23,18 @@ let Store = class {
         if(config) {
             this.config = config;
         }
+
         this.worldId = this.config.worldId;
         this.sceneId = this.config.sceneId;
-        delete this.config.worldId;
-        delete this.config.sceneId;
         
-        if(firebase.apps.length == 0) {
+        
+        if(!this.config.firebaseApp) {
+            let initConfig = Object.assign({}.this.config);
+            delete initConfig.worldId;
+            delete initConfig.sceneId;
             this.app = firebase.initializeApp(this.config, instanceId);
         } else {
-             this.app == firebase.app();
+            this.app == this.config.firebaseApp;
         }
         
         this.profile = null;
