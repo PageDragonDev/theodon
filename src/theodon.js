@@ -23,7 +23,6 @@ let TheodonApp = class {
     init(config = null) {
         let app = this;
         this.config = Object.assign({},config);
-        console.log("CONFIG:",this.config);
         
         // SETUP STORE
         

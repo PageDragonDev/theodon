@@ -19,6 +19,7 @@ let Store = class {
             worldId: target.dataset["world"],
             sceneId: target.dataset["scene"]
         };
+
         if(config) {
             this.config = config;
         }
@@ -27,7 +28,12 @@ let Store = class {
         delete this.config.worldId;
         delete this.config.sceneId;
         
-        this.app = firebase.initializeApp(this.config, instanceId);
+        if(firebase.apps.length == 0) {
+            this.app = firebase.initializeApp(this.config, instanceId);
+        } else {
+             this.app == firebase.app();
+        }
+        
         this.profile = null;
         this.fetchFileDialog = this.fetchFileDialog.bind(this);
         this.getImageData = this.getImageData.bind(this);
@@ -231,6 +237,7 @@ let Store = class {
             instance.sid = this.sceneId;
         }
         
+        console.log("Saving Actor:",instance.name,aid,instance.state?instance.state.tid?instance.state.tid:'no tid':'no tid');
         return co(function*() {
             yield actorsRef.doc(aid).set(instance);
         });
@@ -244,7 +251,11 @@ let Store = class {
         // DELETE ACTOR
 
         let actorsRef = db.collection("actors").doc(actor.id);
-        actorsRef.delete();
+        actorsRef.delete().then(function() {
+            console.log("Actor successfully deleted!");
+        }).catch(function(error) {
+            console.error("Actor removing document: ", error);
+        });
 
         // DELETE PLACEMENT
 
