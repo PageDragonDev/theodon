@@ -55,27 +55,37 @@ let Store = class {
             // GET DB
 
             let db = store.app.firestore();
-                
-            // DO WE ALREADY HAVE THIS USER?
-            
             let usersRef = db.collection("users");    
-            let userRef = usersRef.doc(authUser.uid);
-            let userDoc = yield userRef.get();
-            let existingUser = userDoc.exists ? userDoc.data() : {};
             
-            existingUser = {
-                displayName: authUser.displayName,
-                email: authUser.email,
-                photoURL: authUser.photoURL
-            };
                 
             if (!store.app.auth().currentUser) {
+                
                 var provider = new firebase.auth.GoogleAuthProvider();
                 provider.addScope('profile');
                 provider.addScope('email');
                 let result = yield store.app.auth().signInWithPopup(provider);
                 authUser = result.user;
                 profile = { accessToken: result.credential.accessToken, user: null };
+                
+                // DO WE ALREADY HAVE THIS USER?
+    
+                let userRef = usersRef.doc(authUser.uid);
+                let userDoc = yield userRef.get();
+                let existingUser = userDoc.exists ? userDoc.data() : null;
+                
+                if(existingUser) {
+                    existingUser = {
+                        displayName: authUser.displayName,
+                        email: authUser.email,
+                        photoURL: authUser.photoURL
+                    };
+                }
+                
+                // CAN WE ADMIN?
+
+                if (typeof(existingUser.role) == "undefined") {
+                    existingUser.role = "observer";
+                }
                 
                 // UPDATE USER INFO
             
@@ -86,14 +96,27 @@ let Store = class {
             }
             else {
                 authUser = store.app.auth().currentUser;
-                profile = { accessToken: null, user: null };
+                let userRef = usersRef.doc(authUser.uid);
+                let userDoc = yield userRef.get();
+                
+                let existingUser = userDoc.exists ? userDoc.data() : null;
+                if(!existingUser) {
+                    existingUser = {
+                        displayName: authUser.displayName,
+                        email: authUser.email,
+                        photoURL: authUser.photoURL
+                    };
+                }
+                
+                // CAN WE ADMIN?
+
+                if (typeof(existingUser.role) == "undefined") {
+                    existingUser.role = "observer";
+                }
+            
+                profile = { accessToken: null, user: existingUser };
             }
             
-            // CAN WE ADMIN?
-
-            if (typeof(existingUser.role) == "undefined") {
-                existingUser.role = "observer";
-            }
 
             // GET INITIALIZE INFO
 
