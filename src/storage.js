@@ -52,6 +52,23 @@ let Store = class {
             let profile;
             let authUser;
 
+            // GET DB
+
+            let db = store.app.firestore();
+                
+            // DO WE ALREADY HAVE THIS USER?
+            
+            let usersRef = db.collection("users");    
+            let userRef = usersRef.doc(authUser.uid);
+            let userDoc = yield userRef.get();
+            let existingUser = userDoc.exists ? userDoc.data() : {};
+            
+            existingUser = {
+                displayName: authUser.displayName,
+                email: authUser.email,
+                photoURL: authUser.photoURL
+            };
+                
             if (!store.app.auth().currentUser) {
                 var provider = new firebase.auth.GoogleAuthProvider();
                 provider.addScope('profile');
@@ -59,43 +76,24 @@ let Store = class {
                 let result = yield store.app.auth().signInWithPopup(provider);
                 authUser = result.user;
                 profile = { accessToken: result.credential.accessToken, user: null };
+                
+                // UPDATE USER INFO
+            
+                yield usersRef.doc(authUser.uid).set(existingUser);
+                profile.user = existingUser;
+                profile.user._id = authUser.uid;
+                
             }
             else {
                 authUser = store.app.auth().currentUser;
                 profile = { accessToken: null, user: null };
             }
-
-            // GET DB
-
-            let db = store.app.firestore();
-
-            // GET USERS REF
-
-            let usersRef = db.collection("users");
-
-            // DO WE ALREADY HAVE THIS USER?
-
-            let userRef = usersRef.doc(authUser.uid);
-            let userDoc = yield userRef.get();
-            let existingUser = userDoc.exists ? userDoc.data() : {};
-
-            existingUser = {
-                displayName: authUser.displayName,
-                email: authUser.email,
-                photoURL: authUser.photoURL
-            };
-
+            
             // CAN WE ADMIN?
 
             if (typeof(existingUser.role) == "undefined") {
                 existingUser.role = "observer";
             }
-
-            // UPDATE USER INFO
-
-            yield usersRef.doc(authUser.uid).set(existingUser);
-            profile.user = existingUser;
-            profile.user._id = authUser.uid;
 
             // GET INITIALIZE INFO
 
