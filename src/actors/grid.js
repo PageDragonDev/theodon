@@ -21,7 +21,6 @@ class Grid extends Actor {
     }
 
     set gridSize(_size) {
-        console.log("Setting Grid Size")
         this.proxy.gridSize = _size;
         this.changesPending();
     }
@@ -95,15 +94,16 @@ class Grid extends Actor {
 
         if (!this.created) {
             this.makeGrid();
+            
+            // SET PARENT
+
+            if (this.proxy.parent) {
+                this.app.actors.doWhenLoaded(this.proxy.parent, (actor) => {
+                    this.parent = actor;
+                });
+            }
         }
 
-        // SET PARENT
-
-        if (this.proxy.parent) {
-            this.app.actors.doWhenLoaded(this.proxy.parent, (actor) => {
-                this.parent = actor;
-            });
-        }
         this._mesh.aid = this.id;
 
         return this._mesh;
