@@ -196,7 +196,11 @@ class Primitive extends Actor {
             
             if(_this.proxy.parent) {
                 _this.app.actors.doWhenLoaded(_this.proxy.parent,(actor)=>{
-                    _this.parent = actor;
+                    if(this._mesh && actor._mesh) {
+                        this._mesh.parent = actor._mesh;
+                    } else {
+                        console.warn("Unabled set parent mesh of",this.name,". Mesh has not been built.");
+                    }
                 });
             }
                    

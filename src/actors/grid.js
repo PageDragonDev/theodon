@@ -90,19 +90,25 @@ class Grid extends Actor {
         });
     }
 
+    // THE GRID IS CREATED EACH TIME IT IS INIT'ED.
+    
     create() {
+        
+        this.makeGrid();
+        
+        // SET PARENT
 
-        if (!this.created) {
-            this.makeGrid();
-            
-            // SET PARENT
-
-            if (this.proxy.parent) {
-                this.app.actors.doWhenLoaded(this.proxy.parent, (actor) => {
-                    this.parent = actor;
-                });
-            }
+        if (this.proxy.parent) {
+            this.app.actors.doWhenLoaded(this.proxy.parent, (actor) => {
+                if(this._mesh && actor._mesh) {
+                    this._mesh.parent = actor._mesh;
+                } else {
+                    console.warn("Unabled set parent mesh of",this.name,". Mesh has not been built.");
+                }
+                
+            });
         }
+    
 
         this._mesh.aid = this.id;
 
