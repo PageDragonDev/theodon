@@ -262,6 +262,7 @@ let Store = class {
         }
         
         console.log("Saving Actor:",instance.name,aid,instance.state?instance.state.tid?instance.state.tid:'no tid':'no tid');
+
         return co(function*() {
             yield actorsRef.doc(aid).set(instance);
         });

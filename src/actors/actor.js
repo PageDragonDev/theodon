@@ -383,7 +383,7 @@ class Actor {
     
     setState(newState) {
         this._state = Object.assign(this._state,newState);
-        this.hasChanges = true;
+        this.changesPending();
     }
     
     setLocalState(newState) {
@@ -472,6 +472,10 @@ class Actor {
         }
     }
     
+    changesPending() {
+        this.hasChanges = true;
+    }
+    
     // PROPS
     
     get id() {
@@ -488,7 +492,7 @@ class Actor {
     
     set name(name) {
         this.mesh.name = name;
-        this.hasChanges = true;
+        this.changesPending();
     }
     
     get parent() {
@@ -498,7 +502,7 @@ class Actor {
     set parent(parent) {
         this._parent = parent;
         this.mesh.parent = parent._mesh;
-        this.hasChanges = true;
+        this.changesPending();
     }
     
     get state() {
@@ -515,7 +519,7 @@ class Actor {
     
     set priority(priority) {
         this._priority = priority;
-        this.hasChanges = true;
+        this.changesPending();
     }
     
     get visible() {
@@ -524,7 +528,7 @@ class Actor {
     
     set visible(_visible) {
         this.mesh.isVisible = _visible;
-        this.hasChanges = true;
+        this.changesPending();
     }
     
     // PLACEMENT PROPS ARE WRAPPED IN WAYPOINT VECTORS TO UPDATE WAYPOINTS
@@ -584,7 +588,7 @@ class Actor {
     
     set diffuseColor(c) {
         this.mesh.material.diffuseColor = c;
-        this.hasChanges = true;
+        this.changesPending();
     }
     
     get specularColor() {
@@ -593,7 +597,7 @@ class Actor {
     
     set specularColor(c) {
         this.mesh.material.specularColor = c;
-        this.hasChanges = true;
+        this.changesPending();
     }
     
     get emissiveColor() {
@@ -602,7 +606,7 @@ class Actor {
     
     set emissiveColor(c) {
         this.mesh.material.emissiveColor = c;
-        this.hasChanges = true;
+        this.changesPending();
     }
     
     get ambientColor() {
@@ -611,7 +615,7 @@ class Actor {
     
     set ambientColor(c) {
         this.mesh.material.ambientColor = c;
-        this.hasChanges = true;
+        this.changesPending();
     }
     
     // COLLISION
@@ -622,7 +626,7 @@ class Actor {
     
     set checkCollisions(check) {
         this.mesh.checkCollisions = check;
-        this.hasChanges = true;
+        this.changesPending();
     }
     
     // TEXTURE
@@ -633,7 +637,7 @@ class Actor {
     
     set diffuseTexture(t) {
         this.mesh.material.diffuseTexture = t;
-        this.hasChanges = true;
+        this.changesPending();
     }
     
     get specularTexture() {
@@ -642,7 +646,7 @@ class Actor {
     
     set specularTexture(t) {
         this.mesh.material.specularTexture = t;
-        this.hasChanges = true;
+        this.changesPending();
     }
     
     get ambientTexture() {
@@ -651,7 +655,7 @@ class Actor {
     
     set ambientTexture(t) {
         this.mesh.material.ambientTexture = t;
-        this.hasChanges = true;
+        this.changesPending();
     }
     
     get emissiveTexture() {
@@ -660,7 +664,7 @@ class Actor {
     
     set emissiveTexture(t) {
         this.mesh.material.emissiveTexture = t;
-        this.hasChanges = true;
+        this.changesPending();
     }
     
 }

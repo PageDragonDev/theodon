@@ -13,7 +13,7 @@ class Grid extends Actor {
             }
             this.init(def);
         }
-        this.hasChanges = true;
+        this.changesPending();
     }
 
     get gridSize() {
@@ -21,8 +21,9 @@ class Grid extends Actor {
     }
 
     set gridSize(_size) {
+        console.log("Setting Grid Size")
         this.proxy.gridSize = _size;
-        this.hasChanges = true;
+        this.changesPending();
     }
     
     get gridType() {
