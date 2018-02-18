@@ -63,31 +63,27 @@ class Grid extends Actor {
     save() {
         
         let instance = {};
-        let _this = this;
-
-        return co(function*() {
             
-            instance.type = "grid";
-            instance.name = _this.name ? _this.name : "";
-            instance.gridType = _this.proxy.gridType;
-            instance.gridSize = _this.proxy.gridSize;
-            instance.gridWidth = _this.proxy.gridWidth;
-            instance.gridHeight = _this.proxy.gridHeight;
-            instance.priority = _this.priority;
+        instance.type = "grid";
+        instance.name = this.name ? this.name : "";
+        instance.gridType = this.proxy.gridType;
+        instance.gridSize = this.proxy.gridSize;
+        instance.gridWidth = this.proxy.gridWidth;
+        instance.gridHeight = this.proxy.gridHeight;
+        instance.priority = this.priority;
 
-            // PARENT
-            
-            if (_this.parent) {
-                instance.parent = _this.parent.id;
-            }
+        // PARENT
+        
+        if (this.parent) {
+            instance.parent = this.parent.id;
+        }
 
-            // STATE
+        // STATE
 
-            instance.state = _this._state;
+        instance.state = this._state;
 
-            return yield _this.app.store.saveActor(_this._id, instance);
+        this.app.store.saveActor(this._id, instance);
 
-        });
     }
 
     // THE GRID IS CREATED EACH TIME IT IS INIT'ED.

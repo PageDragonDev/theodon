@@ -292,14 +292,12 @@ class Actor {
     }
     
     done() {
-        let _this = this;
-        return co(function *(){
-            if(_this.hasChanges) {
-                // _this.app.actors.add(_this);
-                yield _this.save();
-                _this.hasChanges = false;
-            }
-        });
+        
+        if(this.hasChanges) {
+            this.save();
+            this.hasChanges = false;
+        }
+    
     }
     
     // CREATE MESH FROM PRIMITIVE OR FILE

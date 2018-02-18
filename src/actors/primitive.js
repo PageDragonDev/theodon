@@ -27,87 +27,82 @@ class Primitive extends Actor {
     
     save() {
         let instance = {};
-        let _this = this;
-        
-        
-        return co(function *(){
 
-            instance.type = "primitive";
-            instance.primitive = _this.primitive;
-            instance.name = _this.name?_this.name:"";
-            instance.priority = _this.priority;
-            instance.visible = _this.mesh.isVisible;
+        instance.type = "primitive";
+        instance.primitive = this.primitive;
+        instance.name = this.name?this.name:"";
+        instance.priority = this.priority;
+        instance.visible = this.mesh.isVisible;
 
-            // MATERIAL
-            
-            if(_this.diffuseColor) {
-                instance.diffuseColor = _this.colorToObj(_this.diffuseColor);
-            }
-            if(_this.specularColor) {
-                instance.specularColor = _this.colorToObj(_this.specularColor);
-            }
-            if(_this.emissiveColor) {
-                instance.emissiveColor = _this.colorToObj(_this.emissiveColor);
-            }
-            if(_this.ambientColor) {
-                instance.ambientColor = _this.colorToObj(_this.ambientColor);
-            }
-            
-            let createTexture = (t) => {
-                return {
-                    "name": t.name,
-                    "level": t.level,
-                    "hasAlpha": t.hasAlpha,
-                    "getAlphaFromRGB": t.getAlphaFromRGB,
-                    "coordinatesMode": t.coordinatesMode,
-                    "uOffset": t.uOffset,
-                    "vOffset": t.vOffset,
-                    "uScale": t.uScale,
-                    "vScale": t.vScale,
-                    "uAng": t.uAng,
-                    "vAng": t.vAng,
-                    "wAng": t.wAng,
-                    "wrapU": t.wrapU,
-                    "wrapV": t.wrapV,
-                    "coordinatesIndex": t.coordinatesIndex
-                };
+        // MATERIAL
+        
+        if(this.diffuseColor) {
+            instance.diffuseColor = this.colorToObj(this.diffuseColor);
+        }
+        if(this.specularColor) {
+            instance.specularColor = this.colorToObj(this.specularColor);
+        }
+        if(this.emissiveColor) {
+            instance.emissiveColor = this.colorToObj(this.emissiveColor);
+        }
+        if(this.ambientColor) {
+            instance.ambientColor = this.colorToObj(this.ambientColor);
+        }
+        
+        let createTexture = (t) => {
+            return {
+                "name": t.name,
+                "level": t.level,
+                "hasAlpha": t.hasAlpha,
+                "getAlphaFromRGB": t.getAlphaFromRGB,
+                "coordinatesMode": t.coordinatesMode,
+                "uOffset": t.uOffset,
+                "vOffset": t.vOffset,
+                "uScale": t.uScale,
+                "vScale": t.vScale,
+                "uAng": t.uAng,
+                "vAng": t.vAng,
+                "wAng": t.wAng,
+                "wrapU": t.wrapU,
+                "wrapV": t.wrapV,
+                "coordinatesIndex": t.coordinatesIndex
             };
-            
-            // TEXTURE
-            
-            if(_this.diffuseTexture) {
-                instance.diffuseTexture = createTexture(_this.diffuseTexture);
-            }
-            
-            if(_this.specularTexture) {
-                instance.specularTexture = createTexture(_this.specularTexture);
-            }
-            
-            if(_this.emissiveTexture) {
-                instance.emissiveTexture = createTexture(_this.emissiveTexture);
-            }
-            
-            if(_this.ambientTexture) {
-                instance.ambientTexture = createTexture(_this.ambientTexture);
-            }
-            
-            // COLLISION
-            
-            instance.checkCollisions = _this.checkCollisions?_this.checkCollisions:false;
-            
-            // PARENT
-            
-            if(_this.parent) {
-                instance.parent = _this.parent.id;
-            }
-            
-            // STATE
-            
-            instance.state = _this._state;
-            
-            return yield _this.app.store.saveActor(_this._id,instance);
+        };
+        
+        // TEXTURE
+        
+        if(this.diffuseTexture) {
+            instance.diffuseTexture = createTexture(this.diffuseTexture);
+        }
+        
+        if(this.specularTexture) {
+            instance.specularTexture = createTexture(this.specularTexture);
+        }
+        
+        if(this.emissiveTexture) {
+            instance.emissiveTexture = createTexture(this.emissiveTexture);
+        }
+        
+        if(this.ambientTexture) {
+            instance.ambientTexture = createTexture(this.ambientTexture);
+        }
+        
+        // COLLISION
+        
+        instance.checkCollisions = this.checkCollisions?this.checkCollisions:false;
+        
+        // PARENT
+        
+        if(this.parent) {
+            instance.parent = this.parent.id;
+        }
+        
+        // STATE
+        
+        instance.state = this._state;
+        
+        this.app.store.saveActor(this._id,instance);
 
-        });
     }
     
     // CREATE MESH FROM PRIMITIVE OR FILE
