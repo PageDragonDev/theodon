@@ -39,6 +39,12 @@ let TheodonHud = class {
     // SHOW HUD
     
     showHUD() {
+        
+        // CHECK ADMIN
+        
+        if(!this.app.store.admin) {
+            return;
+        }
 
         // HIDE HUD IN CASE IT"S SHOWING
         
@@ -310,6 +316,12 @@ let TheodonHud = class {
     }
     
     showActorHUD(actor,evt) {
+        
+        // CHECK ADMIN
+        
+        if(!this.app.store.admin) {
+            return;
+        }
         
         this.hideHUD();
         this.app.disablePicking = true;
