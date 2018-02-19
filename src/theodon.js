@@ -111,7 +111,7 @@ let TheodonApp = class {
                     // TRAVEL ANCESTORS UNTIL WE FIND AN ACTOR
                     
                     let currentMesh = pickResult.pickedMesh;
-                    while(!currentMesh.aid && currentMesh != null) {
+                    while(currentMesh != null && !currentMesh.aid) {
                         currentMesh = currentMesh.parent;
                     }
                     

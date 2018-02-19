@@ -391,17 +391,10 @@ let TheodonHud = class {
         this.hideHUD();
         this.app.disablePicking = true;
     
-        // GUI PLANE
-        
-        this.hudPlane = BABYLON.Mesh.CreatePlane("hudPlane", 2);
-        this.hudPlane.parent = this.app.camera;
-        this.hudPlane.position.z = 1.2;
-        this.hudPlane.position.x = 0;
-        
-    
         // GUI TEXTURE
         
         this.hudTexture;
+        let shown = true;
         
         hud.forEach((control,idx)=>{
             if(control.roles) {
@@ -421,7 +414,16 @@ let TheodonHud = class {
                 }
             }
             
-            if(!this.hudTexture) {
+            if(!this.hudPlane) {
+                shown = true;
+                
+                // GUI PLANE
+        
+                this.hudPlane = BABYLON.Mesh.CreatePlane("hudPlane", 2);
+                this.hudPlane.parent = this.app.camera;
+                this.hudPlane.position.z = 1.2;
+                this.hudPlane.position.x = 0;
+                
                 this.hudTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(this.hudPlane);
             }
             
@@ -439,6 +441,11 @@ let TheodonHud = class {
             },control.background?control.background:"green",control.color?control.color:"white",this.hudTexture);
         });
         
+        if(shown) {
+            new Button(200,0,30,30,"X",()=>{
+                this.hideHUD();
+            },"red","white",this.hudTexture);
+        }
     }
     
 };
