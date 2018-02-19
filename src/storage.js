@@ -37,7 +37,7 @@ let Store = class {
             this.app = this.config.firebaseApp;
         }
         
-        this.profile = null;
+        this._user = config.user;
         this.fetchFileDialog = this.fetchFileDialog.bind(this);
         this.getImageData = this.getImageData.bind(this);
 
@@ -90,8 +90,7 @@ let Store = class {
                 // UPDATE USER INFO
             
                 yield usersRef.doc(authUser.uid).set(existingUser);
-                profile.user = existingUser;
-                profile.user._id = authUser.uid;
+                profile = existingUser;
                 
             }
             else {
@@ -114,7 +113,7 @@ let Store = class {
                     existingUser.role = "observer";
                 }
             
-                profile = { accessToken: null, user: existingUser };
+                profile = existingUser;
             }
             
 
@@ -128,7 +127,9 @@ let Store = class {
             if (store.worldProfile) {
                 store.worldProfile.id = store.worldId;
             }
-            store._user = profile;
+            if(!this._user) {
+                store._user = profile;
+            }
 
         });
     }
