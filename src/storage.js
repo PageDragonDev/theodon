@@ -82,12 +82,6 @@ let Store = class {
                     };
                 }
                 
-                // CAN WE ADMIN?
-
-                if (typeof(existingUser.role) == "undefined") {
-                    existingUser.role = "observer";
-                }
-                
                 // UPDATE USER INFO
             
                 yield usersRef.doc(authUser.uid).set(existingUser);
@@ -106,12 +100,6 @@ let Store = class {
                         email: authUser.email,
                         photoURL: authUser.photoURL
                     };
-                }
-                
-                // CAN WE ADMIN?
-
-                if (typeof(existingUser.role) == "undefined") {
-                    existingUser.role = "observer";
                 }
             
                 profile = existingUser;

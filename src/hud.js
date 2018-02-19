@@ -404,6 +404,20 @@ let TheodonHud = class {
         this.hudTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(this.hudPlane);
         
         hud.forEach((control,idx)=>{
+            if(control.roles) {
+                let allow = false;
+                control.roles.forEach(role=>{
+                    if(this.app.config.testRole) {
+                        let test = this.app.config.testRole(actor,role);   
+                        if(test) {
+                            allow = true;
+                        }
+                    }
+                });
+                if(!allow) {
+                    return;
+                }
+            }
             new Button(0,idx*35,150,30,control.label,()=>{
                 
                 if(control.script) {
