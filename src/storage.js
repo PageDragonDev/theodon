@@ -127,7 +127,7 @@ let Store = class {
             if (store.worldProfile) {
                 store.worldProfile.id = store.worldId;
             }
-            if(!this._user) {
+            if(!store._user) {
                 store._user = profile;
             }
             console.log("THEODON USER:",store._user);
