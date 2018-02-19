@@ -401,7 +401,7 @@ let TheodonHud = class {
     
         // GUI TEXTURE
         
-        this.hudTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(this.hudPlane);
+        this.hudTexture;
         
         hud.forEach((control,idx)=>{
             if(control.roles) {
@@ -416,9 +416,15 @@ let TheodonHud = class {
                     }
                 });
                 if(!allow) {
+                    this.app.disablePicking = false;
                     return;
                 }
             }
+            
+            if(!this.hudTexture) {
+                this.hudTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(this.hudPlane);
+            }
+            
             new Button(0,idx*35,150,30,control.label,()=>{
                 
                 if(control.script) {
