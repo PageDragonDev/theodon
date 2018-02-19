@@ -130,6 +130,7 @@ let Store = class {
             if(!this._user) {
                 store._user = profile;
             }
+            console.log("THEODON USER:",store._user);
 
         });
     }
