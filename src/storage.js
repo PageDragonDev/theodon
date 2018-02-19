@@ -38,6 +38,7 @@ let Store = class {
         }
         
         this._user = config.user;
+        this._admin = config.admin?config.admin:false;
         this.fetchFileDialog = this.fetchFileDialog.bind(this);
         this.getImageData = this.getImageData.bind(this);
 
@@ -214,6 +215,10 @@ let Store = class {
 
     get user() {
         return this._user;
+    }
+    
+    get admin() {
+        return this._admin;
     }
 
     // SAVE COLLECTION/OBJECT VALUE
