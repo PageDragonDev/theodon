@@ -407,7 +407,7 @@ let TheodonHud = class {
             if(control.roles) {
                 let allow = false;
                 let roles = control.roles.split(',');
-                control.roles.forEach(role=>{
+                roles.forEach(role=>{
                     if(this.app.config.testRole) {
                         let test = this.app.config.testRole(actor,role.trim());   
                         if(test) {
