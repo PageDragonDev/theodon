@@ -350,6 +350,9 @@ class Actor {
                 this.app._pickedActors.push(this);
             }
         }
+        if(this.app.config.actorSelected) {
+            this.app.config.actorSelected(this);
+        }
     }
     
     highlight(color=BABYLON.Color3.Green()) {
