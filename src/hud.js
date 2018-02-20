@@ -394,7 +394,7 @@ let TheodonHud = class {
         // GUI TEXTURE
         
         this.hudTexture;
-        let shown = true;
+        let shown = false;
         
         hud.forEach((control,idx)=>{
             if(control.roles) {
@@ -405,17 +405,16 @@ let TheodonHud = class {
                         let test = this.app.config.testRole(actor,role.trim());   
                         if(test) {
                             allow = true;
+                            shown = true;
                         }
                     }
                 });
                 if(!allow) {
-                    this.app.disablePicking = false;
                     return;
                 }
             }
             
             if(!this.hudPlane) {
-                shown = true;
                 
                 // GUI PLANE
         
@@ -445,6 +444,8 @@ let TheodonHud = class {
             new Button(200,0,30,30,"X",()=>{
                 this.hideHUD();
             },"red","white",this.hudTexture);
+        } else {
+            this.app.disablePicking = false;
         }
     }
     
