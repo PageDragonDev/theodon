@@ -139,6 +139,10 @@ let TheodonHud = class {
             this.hudPlane.dispose();
             this.hudPlane = null;
         }
+        if(this.hudTexture) {    
+            this.hudTexture.dispose();
+            this.hudTexture = null;
+        }
         this.showingBranch = null;
         this.app.disablePicking = false;
     }
@@ -418,7 +422,7 @@ let TheodonHud = class {
                 
                 // GUI PLANE
         
-                this.hudPlane = BABYLON.Mesh.CreatePlane("hudPlane", this.app.scene);
+                this.hudPlane = BABYLON.Mesh.CreatePlane("hudPlane", 2);
                 this.hudPlane.parent = this.app.camera;
                 this.hudPlane.position.z = 1.2;
                 this.hudPlane.position.x = 0;
