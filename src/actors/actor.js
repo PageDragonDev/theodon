@@ -350,8 +350,8 @@ class Actor {
                 this.app._pickedActors.push(this);
             }
         }
-        if(this.app.config.actorSelected) {
-            this.app.config.actorSelected(this);
+        if(this.app.config.onActorSelected) {
+            this.app.config.onActorSelected(this);
         }
     }
     
