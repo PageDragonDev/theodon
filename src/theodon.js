@@ -152,7 +152,12 @@ let TheodonApp = class {
         sphere.material.diffuseColor = color;
     }
 
+    driveCamera(axis) { 
+        var move_direction = BABYLON.Vector3.TransformNormal(axis, this.camera.getWorldMatrix());
+        this.camera.cameraDirection = move_direction; 
+    }
 };
+
 
 // STORE ALL OUR APPS
 
