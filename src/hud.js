@@ -53,7 +53,7 @@ let TheodonHud = class {
         
         // GUI PLANE
         
-        this.hudPlane = BABYLON.Mesh.CreatePlane("hudPlane", this.app.scene);
+        this.hudPlane = BABYLON.Mesh.CreatePlane("hudPlane", 2);
         this.hudPlane.parent = this.app.camera;
         this.hudPlane.position.z = 1.2;
         this.hudPlane.position.x = 0;
@@ -332,7 +332,7 @@ let TheodonHud = class {
     
         // GUI PLANE
         
-        this.hudPlane = BABYLON.Mesh.CreatePlane("hudPlane", this.app.scene);
+        this.hudPlane = BABYLON.Mesh.CreatePlane("hudPlane", 2);
         this.hudPlane.parent = this.app.camera;
         this.hudPlane.position.z = 1.2;
         this.hudPlane.position.x = 0;
