@@ -198,10 +198,21 @@ let ScriptManager = class {
     
     // Move Camera To Actor
     
-    goToActor(actor) {
+    goToActor(actor,yOffset,margin) {
         
-        new TWEEN.Tween(this._mesh.position)
-			.to(actor.mesh.position, 2000)
+        // MOVE
+        
+        let start = this.app.camera.position;
+        let target = actor.mesh.position.clone();
+        target.y += yOffset;
+        let vector = target.subtract(start).normalize();
+        let distance = BABYLON.Vector3.Distance(start,target);
+        
+        let end = start.add(vector.scale(distance - margin));
+        this.app.camera.setTarget(target);
+        
+        new TWEEN.Tween(start)
+			.to(end, 1000)
 			.start();
     }
 };
