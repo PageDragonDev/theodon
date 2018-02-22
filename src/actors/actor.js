@@ -87,6 +87,7 @@ class Actor {
         this._state = def.state?def.state:{};
         this.proxy.parent = def.parent;
         this.proxy.visible = typeof(def.visible) != 'undefined'?def.visible:true;
+        this.proxy.visibility = typeof(def.visibility) != 'undefined'?def.visibility:1;
         this.create();
         this.hasChanges = false;
         
@@ -189,8 +190,8 @@ class Actor {
         // GET TIME DELTA
         
         let timeDiff = this.lastUpdated - time;
-        if(timeDiff < 1000) {
-            timeDiff = 1000;
+        if(typeof(def.minTime)!="undefined") {
+            timeDiff = def.minTime;
         }
         
         if(def.position) {
@@ -272,13 +273,17 @@ class Actor {
     
     // THROTTLED CREATION OF WAYPOINTS
     
-    saveWaypoint() {
+    saveWaypoint(waypoint = {}) {
         
-        let waypoint = {};
-        
-        waypoint.position = {x:this.proxy.position.x,y:this.proxy.position.y,z:this.proxy.position.z};
-        waypoint.rotation = {x:this.proxy.rotation.x,y:this.proxy.rotation.y,z:this.proxy.rotation.z};
-        waypoint.scaling = {x:this.proxy.scaling.x,y:this.proxy.scaling.y,z:this.proxy.scaling.z};
+        if(!waypoint.position) {
+            waypoint.position = {x:this.proxy.position.x,y:this.proxy.position.y,z:this.proxy.position.z};
+        }
+        if(!waypoint.rotation) {
+            waypoint.rotation = {x:this.proxy.rotation.x,y:this.proxy.rotation.y,z:this.proxy.rotation.z};
+        }
+        if(!waypoint.scaling) {
+            waypoint.scaling = {x:this.proxy.scaling.x,y:this.proxy.scaling.y,z:this.proxy.scaling.z};
+        }
 
         this.app.store.saveWaypoint(this,waypoint);
         
@@ -529,6 +534,15 @@ class Actor {
     
     set visible(_visible) {
         this.mesh.isVisible = _visible;
+        this.changesPending();
+    }
+    
+    get visibility() {
+        return this.mesh.visibility;
+    }
+    
+    set visibility(_visibility) {
+        this.mesh.visibility = _visibility;
         this.changesPending();
     }
     

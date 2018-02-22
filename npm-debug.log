@@ -1,0 +1,130 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/home/ubuntu/.nvm/versions/node/v6.11.2/bin/node',
+1 verbose cli   '/home/ubuntu/.nvm/versions/node/v6.11.2/bin/npm',
+1 verbose cli   'publish',
+1 verbose cli   '-f' ]
+2 info using npm@3.10.10
+3 info using node@v6.11.2
+4 warn using --force I sure hope you know what you are doing.
+5 verbose publish [ '.' ]
+6 silly cache add args [ '.', null ]
+7 verbose cache add spec .
+8 silly cache add parsed spec Result {
+8 silly cache add   raw: '.',
+8 silly cache add   scope: null,
+8 silly cache add   escapedName: null,
+8 silly cache add   name: null,
+8 silly cache add   rawSpec: '.',
+8 silly cache add   spec: '/home/ubuntu/workspace',
+8 silly cache add   type: 'directory' }
+9 verbose addLocalDirectory /home/ubuntu/.npm/theodon/1.0.0/package.tgz not in flight; packing
+10 verbose correctMkdir /home/ubuntu/.npm correctMkdir not in flight; initializing
+11 info lifecycle theodon@1.0.0~prepublish: theodon@1.0.0
+12 silly lifecycle theodon@1.0.0~prepublish: no script for prepublish, continuing
+13 verbose tar pack [ '/home/ubuntu/.npm/theodon/1.0.0/package.tgz',
+13 verbose tar pack   '/home/ubuntu/workspace' ]
+14 verbose tarball /home/ubuntu/.npm/theodon/1.0.0/package.tgz
+15 verbose folder /home/ubuntu/workspace
+16 verbose addLocalTarball adding from inside cache /home/ubuntu/.npm/theodon/1.0.0/package.tgz
+17 verbose correctMkdir /home/ubuntu/.npm correctMkdir not in flight; initializing
+18 silly cache afterAdd theodon@1.0.0
+19 verbose afterAdd /home/ubuntu/.npm/theodon/1.0.0/package/package.json not in flight; writing
+20 verbose correctMkdir /home/ubuntu/.npm correctMkdir not in flight; initializing
+21 verbose afterAdd /home/ubuntu/.npm/theodon/1.0.0/package/package.json written
+22 silly publish { name: 'theodon',
+22 silly publish   version: '1.0.0',
+22 silly publish   description: 'Theodon 3D/VR Programmable Environment',
+22 silly publish   main: 'src/index.js',
+22 silly publish   scripts:
+22 silly publish    { watch: 'webpack --config webpack.config.js -d --watch',
+22 silly publish      build: 'webpack --config webpack.config.js' },
+22 silly publish   repository:
+22 silly publish    { type: 'git',
+22 silly publish      url: 'git+https://github.com/%3APageDragonDev/theodon.git' },
+22 silly publish   author: { name: 'J.L.Holmes' },
+22 silly publish   license: 'ISC',
+22 silly publish   bugs: { url: 'https://github.com/PageDragonDev/theodon/issues' },
+22 silly publish   homepage: 'https://github.com/PageDragonDev/theodon#readme',
+22 silly publish   dependencies:
+22 silly publish    { babylonjs: '^3.2.0-alpha7',
+22 silly publish      'babylonjs-gui': '^3.2.0-alpha7',
+22 silly publish      brace: '^0.11.0',
+22 silly publish      co: '^4.6.0',
+22 silly publish      firebase: '^4.8.1',
+22 silly publish      lodash: '^4.17.4',
+22 silly publish      'tween.js': '^16.6.0',
+22 silly publish      'uploadcare-widget': '^3.2.1',
+22 silly publish      uuid: '^3.1.0' },
+22 silly publish   devDependencies:
+22 silly publish    { 'babel-core': '^6.26.0',
+22 silly publish      'babel-loader': '^7.1.2',
+22 silly publish      'babel-polyfill': '^6.26.0',
+22 silly publish      'babel-preset-env': '^1.6.1',
+22 silly publish      'html-webpack-plugin': '^2.30.1',
+22 silly publish      webpack: '^3.10.0' },
+22 silly publish   peerDependencies: { babylonjs: '^3.2.0-alpha7' },
+22 silly publish   readme: '# theodon\nTheodon 3D/VR Programmable Environment\n\nNOTE: This project is bleeding edge development and is NOT ready for production use.',
+22 silly publish   readmeFilename: 'README.md',
+22 silly publish   gitHead: '2246b7c7a623c12f1f11a323b35cb98d2b61a6a4',
+22 silly publish   _id: 'theodon@1.0.0',
+22 silly publish   _shasum: '3f443ec4f29722cb1abb0508a6b698f937d6daf8',
+22 silly publish   _from: '.' }
+23 verbose getPublishConfig undefined
+24 silly mapToRegistry name theodon
+25 silly mapToRegistry using default registry
+26 silly mapToRegistry registry https://registry.npmjs.org/
+27 silly mapToRegistry data Result {
+27 silly mapToRegistry   raw: 'theodon',
+27 silly mapToRegistry   scope: null,
+27 silly mapToRegistry   escapedName: 'theodon',
+27 silly mapToRegistry   name: 'theodon',
+27 silly mapToRegistry   rawSpec: '',
+27 silly mapToRegistry   spec: 'latest',
+27 silly mapToRegistry   type: 'tag' }
+28 silly mapToRegistry uri https://registry.npmjs.org/theodon
+29 verbose publish registryBase https://registry.npmjs.org/
+30 silly publish uploading /home/ubuntu/.npm/theodon/1.0.0/package.tgz
+31 verbose request uri https://registry.npmjs.org/theodon
+32 verbose request sending authorization for write operation
+33 info attempt registry request try #1 at 10:19:08 PM
+34 verbose request using bearer token for auth
+35 verbose request id 895f047ceb03effd
+36 http request PUT https://registry.npmjs.org/theodon
+37 http 403 https://registry.npmjs.org/theodon
+38 verbose headers { 'content-type': 'application/json',
+38 verbose headers   'cache-control': 'max-age=300',
+38 verbose headers   'content-length': '69',
+38 verbose headers   'accept-ranges': 'bytes',
+38 verbose headers   date: 'Wed, 21 Feb 2018 22:19:13 GMT',
+38 verbose headers   via: '1.1 varnish',
+38 verbose headers   connection: 'keep-alive',
+38 verbose headers   'x-served-by': 'cache-mdw17344-MDW',
+38 verbose headers   'x-cache': 'MISS',
+38 verbose headers   'x-cache-hits': '0',
+38 verbose headers   'x-timer': 'S1519251549.848026,VS0,VE4642',
+38 verbose headers   vary: 'Accept-Encoding, Accept' }
+39 verbose request invalidating /home/ubuntu/.npm/registry.npmjs.org/theodon on PUT
+40 error publish Failed PUT 403
+41 verbose stack Error: theodon cannot be republished until 24 hours have passed. : theodon
+41 verbose stack     at makeError (/home/ubuntu/.nvm/versions/node/v6.11.2/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:302:12)
+41 verbose stack     at CachingRegistryClient.<anonymous> (/home/ubuntu/.nvm/versions/node/v6.11.2/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:290:14)
+41 verbose stack     at Request._callback (/home/ubuntu/.nvm/versions/node/v6.11.2/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:210:14)
+41 verbose stack     at Request.self.callback (/home/ubuntu/.nvm/versions/node/v6.11.2/lib/node_modules/npm/node_modules/request/request.js:187:22)
+41 verbose stack     at emitTwo (events.js:106:13)
+41 verbose stack     at Request.emit (events.js:191:7)
+41 verbose stack     at Request.<anonymous> (/home/ubuntu/.nvm/versions/node/v6.11.2/lib/node_modules/npm/node_modules/request/request.js:1048:10)
+41 verbose stack     at emitOne (events.js:96:13)
+41 verbose stack     at Request.emit (events.js:188:7)
+41 verbose stack     at IncomingMessage.<anonymous> (/home/ubuntu/.nvm/versions/node/v6.11.2/lib/node_modules/npm/node_modules/request/request.js:969:12)
+42 verbose statusCode 403
+43 verbose pkgid theodon
+44 verbose cwd /home/ubuntu/workspace
+45 error Linux 4.9.80-c9
+46 error argv "/home/ubuntu/.nvm/versions/node/v6.11.2/bin/node" "/home/ubuntu/.nvm/versions/node/v6.11.2/bin/npm" "publish" "-f"
+47 error node v6.11.2
+48 error npm  v3.10.10
+49 error code E403
+50 error theodon cannot be republished until 24 hours have passed. : theodon
+51 error If you need help, you may report this error at:
+51 error     <https://github.com/npm/npm/issues>
+52 verbose exit [ 1, true ]
