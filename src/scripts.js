@@ -1,8 +1,9 @@
 import BABYLON from "babylonjs";
-import Actor from "./actors/actor.js";
 import Grid from "./actors/grid.js";
 import Primitive from "./actors/primitive.js";
 import co from "co";
+
+import TWEEN from "tween.js";
 
 let ScriptManager = class {
     
@@ -22,6 +23,7 @@ let ScriptManager = class {
         this.actor = this.actor.bind(this);
         this.color = this.color.bind(this);
         this.texture = this.texture.bind(this);
+        this.gotoActor = this.gotoActor.bind(this);
         
         // WATCH SCRIPTS
         
@@ -51,7 +53,27 @@ let ScriptManager = class {
         decoratedScript = decoratedScript.replace(/texture\(/g,"yield texture(");
         decoratedScript = decoratedScript.replace(/fetchFileDialog\(/g,"yield fetchFileDialog(");
         
-        script.fn = new _Function("run","done","co","BABYLON","scene","primitive","grid", "actor","actors","color","picked","texture","data","target","fetchFileDialog","nearest","user","camera","config",decoratedScript);
+        script.fn = new _Function("run",
+            "done",
+            "co",
+            "BABYLON",
+            "scene",
+            "primitive",
+            "grid",
+            "actor",
+            "actors",
+            "color",
+            "picked",
+            "texture",
+            "data",
+            "target",
+            "fetchFileDialog",
+            "nearest",
+            "user",
+            "camera",
+            "config",
+            "goto",
+            decoratedScript);
         
         if(this.app.hud) {
             this.app.hud.updateWorldScripts(this.worldScripts);
@@ -79,12 +101,56 @@ let ScriptManager = class {
         if(script && script.fn) {
             
             try {
-                script.fn(this.app.scripts.runScript,this.app.actors.done,co,BABYLON,this.app.scene,this.primitive,this.grid, this.actor,this.app.actors,this.color,this.app.pickedActor,this.texture,data,data.target,this.app.store.fetchFileDialog,this.app.actors.nearest,this.app.store.user,this.app.camera,this.app.config);
+                script.fn(this.app.scripts.runScript,
+                    this.app.actors.done,
+                    co,
+                    BABYLON,
+                    this.app.scene,
+                    this.primitive,
+                    this.grid,
+                    this.actor,
+                    this.app.actors,
+                    this.color,
+                    this.app.pickedActor,
+                    this.texture,
+                    data,
+                    data.target,
+                    this.app.store.fetchFileDialog,
+                    this.app.actors.nearest,
+                    this.app.store.user,
+                    this.app.camera,
+                    this.app.config,
+                    this.gotoActor);
             } catch(e) {
                 console.error("Script:",script.path,e);
             }
         }
     }
+    
+    
+    
+    // RUN A SCRIPT WHEN IT'S LOADED
+    
+    runScript(path,data) {
+        let script = this.getScriptByPath(path);
+        if(!script) {
+            this.whenLoaded.push({path:path,ran:false,data:data});
+        } else {
+            script.ran = true;
+            this.run(script,data);
+        }
+    }
+    
+    // REMOVE A SCRIPT
+    
+    removeScript(script) {
+        this.worldScripts = this.worldScripts.filter(s=>s._id != script._id);
+        if(this.app.hud) {
+            this.app.hud.updateWorldScripts(this.worldScripts);
+        }
+    }
+    
+    // HELPERS
     
     // WRAP BABYLON MeshBuilder
     
@@ -136,26 +202,24 @@ let ScriptManager = class {
     texture(path) {
         return this.app.textures.getTexture(path);
     }
+    // Move Camera To Actor
     
-    // RUN A SCRIPT WHEN IT'S LOADED
-    
-    runScript(path,data) {
-        let script = this.getScriptByPath(path);
-        if(!script) {
-            this.whenLoaded.push({path:path,ran:false,data:data});
-        } else {
-            script.ran = true;
-            this.run(script,data);
-        }
-    }
-    
-    // REMOVE A SCRIPT
-    
-    removeScript(script) {
-        this.worldScripts = this.worldScripts.filter(s=>s._id != script._id);
-        if(this.app.hud) {
-            this.app.hud.updateWorldScripts(this.worldScripts);
-        }
+    goToActor(actor,yOffset,margin) {
+        
+        // MOVE
+        
+        let start = this.app.camera.position;
+        let target = actor.mesh.position.clone();
+        target.y += yOffset;
+        let vector = target.subtract(start).normalize();
+        let distance = BABYLON.Vector3.Distance(start,target);
+        
+        let end = start.add(vector.scale(distance - margin));
+        this.app.camera.setTarget(target);
+        
+        new TWEEN.Tween(start)
+			.to(end, 1000)
+			.start();
     }
 };
 
