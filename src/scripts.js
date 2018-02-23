@@ -50,7 +50,7 @@ let ScriptManager = class {
         decoratedScript = decoratedScript.replace(/texture\(/g,"yield texture(");
         decoratedScript = decoratedScript.replace(/fetchFileDialog\(/g,"yield fetchFileDialog(");
         
-        script.fn = new _Function("done","co","BABYLON","scene","primitive","grid", "actor","actors","color","picked","texture","data","target","fetchFileDialog","nearest","user","camera","config",decoratedScript);
+        script.fn = new _Function("run","done","co","BABYLON","scene","primitive","grid", "actor","actors","color","picked","texture","data","target","fetchFileDialog","nearest","user","camera","config",decoratedScript);
         
         if(this.app.hud) {
             this.app.hud.updateWorldScripts(this.worldScripts);
@@ -78,7 +78,7 @@ let ScriptManager = class {
         if(script && script.fn) {
             
             try {
-                script.fn(this.app.actors.done,co,BABYLON,this.app.scene,this.primitive,this.grid, this.actor,this.app.actors,this.color,this.app.pickedActor,this.texture,data,data.target,this.app.store.fetchFileDialog,this.app.actors.nearest,this.app.store.user,this.app.camera,this.app.config);
+                script.fn(this.app.scripts.runScript,this.app.actors.done,co,BABYLON,this.app.scene,this.primitive,this.grid, this.actor,this.app.actors,this.color,this.app.pickedActor,this.texture,data,data.target,this.app.store.fetchFileDialog,this.app.actors.nearest,this.app.store.user,this.app.camera,this.app.config);
             } catch(e) {
                 console.error("Script:",script.path,e);
             }
