@@ -23,7 +23,7 @@ let ScriptManager = class {
         this.actor = this.actor.bind(this);
         this.color = this.color.bind(this);
         this.texture = this.texture.bind(this);
-        this.goToActor = this.gotoActor.bind(this);
+        this.goToActor = this.goToActor.bind(this);
         
         // WATCH SCRIPTS
         
