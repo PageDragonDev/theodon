@@ -23,7 +23,7 @@ let ScriptManager = class {
         this.actor = this.actor.bind(this);
         this.color = this.color.bind(this);
         this.texture = this.texture.bind(this);
-        this.gotoActor = this.gotoActor.bind(this);
+        this.goToActor = this.gotoActor.bind(this);
         
         // WATCH SCRIPTS
         
@@ -120,7 +120,7 @@ let ScriptManager = class {
                     this.app.store.user,
                     this.app.camera,
                     this.app.config,
-                    this.gotoActor);
+                    this.goToActor);
             } catch(e) {
                 console.error("Script:",script.path,e);
             }
