@@ -13,6 +13,7 @@ let ScriptManager = class {
         this.whenLoaded = [];
         this.updateScript = this.updateScript.bind(this);
         this.removeScript = this.removeScript.bind(this);
+        this.runScript = this.runScript.bind(this);
         
         // SCRIPT HELPERS
         

@@ -50,7 +50,6 @@ class Actor {
         this.created = false;
         this.pick = this.pick.bind(this);
         this.proxy = {name:"",material:{},position:{x:0,y:0,z:0},rotation:{x:0,y:0,z:0},scaling:{x:1,y:1,z:1}};
-        this.runScript = this.runScript.bind(this);
         this.saveWaypoint = this.saveWaypoint.bind(this); //_.debounce(this.saveWaypoint.bind(this),500);
         this.savePlacement = _.debounce(this.savePlacement.bind(this),5000);
         this.clearWaypoints = _.debounce(this.clearWaypoints.bind(this),5000);
