@@ -197,9 +197,13 @@ let ScriptManager = class {
             let c = new BABYLON.Color3(r,g,b); 
             return c;
         } else {
-            let c = this.colorNameToHex(r);
-            if(!c) {
-                return r;
+            let h = this.colorNameToHex(r);
+            if(h) {
+                let c = BABYLON.Color3.FromHexString(h); 
+                return c;
+            } else {
+                let c = BABYLON.Color3.FromHexString(r); 
+                return c;
             }
         }
     }
