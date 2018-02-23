@@ -1,6 +1,7 @@
 import BABYLON from "babylonjs";
 import * as GUI from 'babylonjs-gui';
 import co from "co";
+import _ from "lodash";
 
 const dlgActorWidth = 300;
 const dlgActorHeight = 300;
@@ -221,7 +222,9 @@ let TheodonHud = class {
             node.parent.controls = parentControls;
         }
         
-        node.nodes.forEach(node=>{
+        let nodes = _.sortBy(node.nodes,["name"]);
+        
+        nodes.forEach(node=>{
             
             // CREATE BUTTON
             
@@ -399,6 +402,8 @@ let TheodonHud = class {
         
         this.hudTexture;
         let shown = false;
+        
+        // SHOW CONTROLS
         
         hud.forEach((control,idx)=>{
             if(control.roles) {
