@@ -215,9 +215,10 @@ class Grid extends Actor {
         this.hexGrid = new HT.Grid(this.proxy.gridWidth, this.proxy.gridHeight);
     }
     
-    gridPosition(v3) {
+    gridPosition(v3,scale=1) {
         
     	let gridSize = this.gridSize?this.gridSize:20;
+    	gridSize *= scale;
     	let offsetX = this.gridOffsetX;
     	let offsetY = this.gridOffsetY;
     	
@@ -272,6 +273,30 @@ class Grid extends Actor {
             this.hlGrid.material = new BABYLON.StandardMaterial("highlight material", this.scene);
             this.hlGrid.material.diffuseColor = new BABYLON.Color3(0.0, 1.0, 1.0);
             this.hlGrid.visibility = 0.2;
+        }
+        
+        // POSITION BOX
+        
+        gp.y = v3.y;
+        this.hlGrid.position = gp;
+    
+    }
+    
+    highlightGridPoint(v3,scale=0.5) {
+        // GET GRID POSITION
+        
+        let gp = this.gridPosition(v3,scale);
+        
+        if(this.hlGrid) {
+            if(this.hlGrid.position.x == gp.x && this.hlGrid.position.y == gp.y && this.hlGrid.position.z == gp.z) {
+                return;
+            }
+        } else {
+            this.hlGrid = BABYLON.MeshBuilder.CreateSphere("highlight grid point", {diamter:2},this.app.scene);
+            this.hlGrid.isPickable = false;
+            this.hlGrid.material = new BABYLON.StandardMaterial("highlight material", this.scene);
+            this.hlGrid.material.diffuseColor = new BABYLON.Color3(0.0, 1.0, 1.0);
+            this.hlGrid.visibility = 0.4;
         }
         
         // POSITION BOX
