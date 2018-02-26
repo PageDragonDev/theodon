@@ -1,5 +1,6 @@
 import BABYLON from "babylonjs";
 import Grid from "./actors/grid.js";
+import Path from "./actors/path.js";
 import Primitive from "./actors/primitive.js";
 import co from "co";
 
@@ -73,6 +74,7 @@ let ScriptManager = class {
             "camera",
             "config",
             "goto",
+            "path",
             decoratedScript);
         
         if(this.app.hud) {
@@ -120,7 +122,8 @@ let ScriptManager = class {
                     this.app.store.user,
                     this.app.camera,
                     this.app.config,
-                    this.goToActor);
+                    this.goToActor,
+                    this.path);
             } catch(e) {
                 console.error("Script:",script.path,e);
             }
@@ -231,6 +234,21 @@ let ScriptManager = class {
         new TWEEN.Tween(start)
 			.to(end, 1000)
 			.start();
+    }
+    
+    // New Paht
+    
+    path(parent) {
+        let actor = new Path(this.app, {
+            name:"path",
+            parent:parent,
+            gridType:"square",
+        });
+        actor.parent = parent;
+        this.app.actors.add(actor);
+        
+        actor.create();
+        return actor;
     }
     
     colorNameToHex(color)
