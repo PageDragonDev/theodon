@@ -25,6 +25,7 @@ let ScriptManager = class {
         this.color = this.color.bind(this);
         this.texture = this.texture.bind(this);
         this.goToActor = this.goToActor.bind(this);
+        this.path = this.path.bind(this);
         
         // WATCH SCRIPTS
         
