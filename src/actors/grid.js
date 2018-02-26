@@ -1,7 +1,6 @@
 import BABYLON from "babylonjs";
 import Actor from "./actor.js";
 import HT from "./hextools.js";
-import co from "co";
 
 class Grid extends Actor {
     
