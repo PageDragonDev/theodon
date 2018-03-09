@@ -17,7 +17,7 @@ class Primitive extends Actor {
         for(let i = 0; i < args.length; i++) {
             this.primitive.push(args[i]);
         }
-        this.hasChanges = true;
+        this.changesPending();
     }
     
     init(def) {

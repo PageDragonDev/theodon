@@ -1,6 +1,7 @@
 import BABYLON from "babylonjs";
 import Grid from "./actors/grid.js";
 import Path from "./actors/path.js";
+import Wall from "./actors/wall.js";
 import Primitive from "./actors/primitive.js";
 import co from "co";
 
@@ -26,6 +27,7 @@ let ScriptManager = class {
         this.texture = this.texture.bind(this);
         this.goToActor = this.goToActor.bind(this);
         this.path = this.path.bind(this);
+        this.wall = this.wall.bind(this);
         
         // WATCH SCRIPTS
         
@@ -51,7 +53,7 @@ let ScriptManager = class {
         // MAKE INTO FN
         
         let _Function = Function;
-        let decoratedScript = "co(function *(){" + script.code + "\ndone();});";
+        let decoratedScript = "co(function *(){" + script.code + "\ndone();return true;});";
         decoratedScript = decoratedScript.replace(/texture\(/g,"yield texture(");
         decoratedScript = decoratedScript.replace(/fetchFileDialog\(/g,"yield fetchFileDialog(");
         
@@ -76,6 +78,7 @@ let ScriptManager = class {
             "config",
             "goto",
             "path",
+            "wall",
             decoratedScript);
         
         if(this.app.hud) {
@@ -104,7 +107,7 @@ let ScriptManager = class {
         if(script && script.fn) {
             
             try {
-                script.fn(this.app.scripts.runScript,
+                let result = script.fn(this.app.scripts.runScript,
                     this.app.actors.done,
                     co,
                     BABYLON,
@@ -124,7 +127,11 @@ let ScriptManager = class {
                     this.app.camera,
                     this.app.config,
                     this.goToActor,
-                    this.path);
+                    this.path,
+                    this.wall);
+                if(!result) {
+                    this.app.actors.done();
+                }
             } catch(e) {
                 console.error("Script:",script.path,e);
             }
@@ -237,13 +244,12 @@ let ScriptManager = class {
 			.start();
     }
     
-    // New Paht
+    // New Path
     
     path(parent) {
         let actor = new Path(this.app, {
             name:"path",
-            parent:parent,
-            gridType:"square",
+            parent:parent
         });
         actor.parent = parent;
         this.app.actors.add(actor);
@@ -251,6 +257,23 @@ let ScriptManager = class {
         actor.create();
         return actor;
     }
+    
+    // New Path
+    
+    wall(parent,width=5,height=10) {
+        let actor = new Wall(this.app, {
+            name:"wall",
+            width:width,
+            height:height,
+            parent:parent
+        });
+        actor.parent = parent;
+        this.app.actors.add(actor);
+        
+        actor.create();
+        return actor;
+    }
+    
     
     colorNameToHex(color)
     {

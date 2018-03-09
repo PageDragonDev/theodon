@@ -65,7 +65,7 @@ class Actor {
             this._mesh = null;
             this.type = "unknown";
             this._position = BABYLON.Vector3.Zero();
-            this.hasChanges = false;
+            this.clearChanges();
             this.hasPlacementChanges = false;
         }
 
@@ -89,7 +89,7 @@ class Actor {
         this.proxy.visible = typeof(def.visible) != 'undefined'?def.visible:true;
         this.proxy.visibility = typeof(def.visibility) != 'undefined'?def.visibility:1;
         this.create();
-        this.hasChanges = false;
+        this.clearChanges();
         
     }
     
@@ -300,7 +300,7 @@ class Actor {
         
         if(this.hasChanges) {
             this.save();
-            this.hasChanges = false;
+            this.clearChanges();
         }
     
     }
@@ -378,12 +378,14 @@ class Actor {
     }
     
     remove() {
-        this.mesh.getChildMeshes(true).forEach((m)=>{
-            if(m.aid) {
-                let child = this.app.actors.actorsById[m.aid];
-                child.remove();
-            }
-        });
+        if(this.mesh.getChildMeshes) {
+            this.mesh.getChildMeshes(true).forEach((m)=>{
+                if(m.aid) {
+                    let child = this.app.actors.actorsById[m.aid];
+                    child.remove();
+                }
+            });
+        }
         this.app.store.removeActor(this);
     }
     
@@ -408,12 +410,13 @@ class Actor {
     // TRIGGER
     
     trigger(eventName,eventData) {
+
         let event = this._state["_" + eventName];
         
         if(!eventData) {
             eventData = {};
         }
-        
+
         if(event) {
             
             // RUN SCRIPT
@@ -422,12 +425,34 @@ class Actor {
             if(script) {
                 eventData.target = this;
                 this.app.scripts.run(script,eventData);
+                console.log("TRIGGER:",event.path);
+                return true;
             }
-            
-            return true;
         }
         return false;
     }
+    
+    // CONVERT TEXTURE TO SERIALIZABLE
+    
+    textureToJSON(t) {
+        return {
+            "name": t.name,
+            "level": t.level,
+            "hasAlpha": t.hasAlpha,
+            "getAlphaFromRGB": t.getAlphaFromRGB,
+            "coordinatesMode": t.coordinatesMode,
+            "uOffset": t.uOffset,
+            "vOffset": t.vOffset,
+            "uScale": t.uScale,
+            "vScale": t.vScale,
+            "uAng": t.uAng,
+            "vAng": t.vAng,
+            "wAng": t.wAng,
+            "wrapU": t.wrapU,
+            "wrapV": t.wrapV,
+            "coordinatesIndex": t.coordinatesIndex
+        };
+    };
     
     // SHOW HUD
     
@@ -480,6 +505,10 @@ class Actor {
     
     changesPending() {
         this.hasChanges = true;
+    }
+    
+    clearChanges() {
+        this.hasChanges = false;
     }
     
     // PROPS

@@ -3,6 +3,8 @@ import TWEEN from "tween.js";
 import Actor from "./actors/actor.js";
 import Grid from "./actors/grid.js";
 import Primitive from "./actors/primitive.js";
+import Path from "./actors/path.js";
+import Wall from "./actors/wall.js";
 
 export class Actors{
     constructor(app) {
@@ -130,6 +132,12 @@ export class Actors{
                 case('primitive'):
                     actor = new Primitive(this.app,def);
                     break;
+                case('path'):
+                    actor = new Path(this.app,def);
+                    break;
+                case('wall'):
+                    actor = new Wall(this.app,def);
+                    break;
                 default:
                     actor = new Actor(this.app,def);
             }
@@ -139,8 +147,10 @@ export class Actors{
         }
     }
     
-    done() { // TODO: Use Generator?
-        this.actors.forEach(a=>a.done());
+    done() {
+        this.actors.forEach(a=>{
+            a.done();
+        });
     }
     
     doWhenLoaded(aid,fn) {
