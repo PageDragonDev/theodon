@@ -7,12 +7,12 @@ import TWEEN from "tween.js";
 // WAYPOINTED VECTOR3
 
 let WayPointVector = class {
-    
+
     constructor(actor,prop){
         this.actor = actor;
         this.prop = prop;
     }
-    
+
     get x() {
         return this.prop.x;
     }
@@ -22,7 +22,7 @@ let WayPointVector = class {
     get z() {
         return this.prop.z;
     }
-    
+
     set x(x) {
         this.prop.x = parseFloat(x);
         this.actor.saveWaypoint();
@@ -35,14 +35,14 @@ let WayPointVector = class {
         this.prop.z = parseFloat(z);
         this.actor.saveWaypoint();
     }
-    
-    
+
+
 };
 
 // ACTOR
 
 class Actor {
-    
+
     constructor (app, def) {
 
         this.app = app;
@@ -58,7 +58,7 @@ class Actor {
         this._state = {};
         this._localState = {};
         this._priority = 0;
-        
+
         if(def) {
             this.init(def);
         } else {
@@ -70,9 +70,9 @@ class Actor {
         }
 
     }
-    
+
     // INITIALIZE ACTOR WITH JSON DEF... BUT SKIP POSITION, ORIENTATION, AND SCALE
-    
+
     init(def) {
         this._id = def._id;
         this.type = def.type;
@@ -90,11 +90,11 @@ class Actor {
         this.proxy.visibility = typeof(def.visibility) != 'undefined'?def.visibility:1;
         this.create();
         this.clearChanges();
-        
+
     }
-    
+
     // CLONE FROM ANOTHER ACTOR
-    
+
     clone(actor) {
         this._id = actor._id;
         this.primitive = actor.primitive;
@@ -109,15 +109,15 @@ class Actor {
         this._priority = actor.priority;
         this.create();
     }
-    
+
     placementOffset() {
         return new BABYLON.Vector3.Zero();
     }
-    
+
     // TRANSFORM ACTOR TO NEW POSITION, ORIENTATION, AND SCALE
-    
+
     updatePlacement(def) {
-        
+
         if(!def.time) {
             return;
         }
@@ -125,23 +125,23 @@ class Actor {
             return;
         }
         this.placed = true;
-        
+
         // DISCARD OLD UPDATES
-        
-        let time = def.time.getTime();
+
+        let time = def.time.toDate().getTime();
         if(time < this.lastUpdated) {
             return;
         }
         this.lastUpdated = new Date().getTime();
-        
+
         if(def.position) {
             // GET OFFSET
-        
+
             let defPos = new BABYLON.Vector3(def.position.x,def.position.y,def.position.z);
             let offsetPos = defPos.add(this.placementOffset());
-            
+
             // PLACE
-            
+
             if(this._mesh) {
                 this._mesh.position =offsetPos;
             }
@@ -149,7 +149,7 @@ class Actor {
             this.proxy.position.y = defPos.y;
             this.proxy.position.z = defPos.z;
         }
-        
+
         if(def.rotation) {
             if(this._mesh) {
                 this._mesh.rotation = new BABYLON.Vector3(def.rotation.x,def.rotation.y,def.rotation.z);
@@ -158,7 +158,7 @@ class Actor {
             this.proxy.rotation.y = this._mesh.rotation.y;
             this.proxy.rotation.z = this._mesh.rotation.z;
         }
-        
+
         if(def.scaling) {
             if(this._mesh) {
                 this._mesh.scaling = new BABYLON.Vector3(def.scaling.x,def.scaling.y,def.scaling.z);
@@ -167,43 +167,43 @@ class Actor {
             this.proxy.scaling.y = this._mesh.scaling.y;
             this.proxy.scaling.z = this._mesh.scaling.z;
         }
-        
+
         this.trigger("placed");
     }
-    
+
     // TRANSFORM ACTOR TO NEW POSITION, ORIENTATION, AND SCALE
-    
+
     updateWaypoint(def) {
 
         if(!def.time) {
             return;
         }
-        
+
         // DISCARD OLD UPDATES
-        
-        let time = def.time.getTime();
+
+        let time = def.time.toDate().getTime();
         if(time < this.lastUpdated) {
             return;
         }
         this.lastUpdated = time;
-        
+
         // GET TIME DELTA
-        
+
         let timeDiff = this.lastUpdated - time;
         if(typeof(def.minTime)!="undefined") {
             timeDiff = def.minTime;
         }
-        
+
         if(def.position) {
-            
+
             // GET OFFSET
-        
+
             let defPos = new BABYLON.Vector3(def.position.x,def.position.y,def.position.z);
             let offsetPos = defPos.add(this.placementOffset());
             let offset = this.placementOffset();
-            
+
             // PLACE
-            
+
             if(this._mesh) {
                 new TWEEN.Tween(this._mesh.position)
     				.to(offsetPos, timeDiff)
@@ -214,9 +214,9 @@ class Actor {
     				})
     				.start();
             }
-            
+
         }
-        
+
         if(def.rotation) {
             if(this._mesh) {
                 new TWEEN.Tween(this._mesh.rotation)
@@ -229,7 +229,7 @@ class Actor {
     				.start();
             }
         }
-        
+
         if(def.scaling) {
             if(this._mesh) {
                 new TWEEN.Tween(this._mesh.scaling)
@@ -241,40 +241,40 @@ class Actor {
     				})
     				.start();
             }
-            
+
         }
     }
-    
+
     // CLEAR WAYPOINTS OLDER THAN FIVE SECONDS FROM LAST UPDATED
-    
+
     clearWaypoints(time) {
         if(this.lastUpdated) {
             this.app.store.clearWaypoints(this,new Date(this.lastUpdated-5000));
         }
     }
-    
+
     // SAVE ACTOR
-    
+
     colorToObj(c) {return {r:c.r,g:c.g,b:c.b}}
-    
+
     save() {
         console.warn("Abastract Actor:save() Called");
     }
-    
+
     savePlacement() {
         let placement = {};
-        
+
         placement.position = {x:this.proxy.position.x,y:this.proxy.position.y,z:this.proxy.position.z};
         placement.rotation = {x:this.proxy.rotation.x,y:this.proxy.rotation.y,z:this.proxy.rotation.z};
         placement.scaling = {x:this.proxy.scaling.x,y:this.proxy.scaling.y,z:this.proxy.scaling.z};
-        
+
         this.app.store.savePlacement(this,placement);
     }
-    
+
     // THROTTLED CREATION OF WAYPOINTS
-    
+
     saveWaypoint(waypoint = {}) {
-        
+
         if(!waypoint.position) {
             waypoint.position = {x:this.proxy.position.x,y:this.proxy.position.y,z:this.proxy.position.z};
         }
@@ -286,67 +286,67 @@ class Actor {
         }
 
         this.app.store.saveWaypoint(this,waypoint);
-        
+
         // ALSO SAVE PLACEMENT
-        
+
         this.savePlacement();
-        
+
         // ALSO CLEAR WAYPOINTS
-        
+
         this.clearWaypoints();
     }
-    
+
     done() {
-        
+
         if(this.hasChanges) {
             this.save();
             this.clearChanges();
         }
-    
+
     }
-    
+
     // CREATE MESH FROM PRIMITIVE OR FILE
-    
+
     create() {
         console.warn("Abastract Actor:create() Called");
     }
-    
+
     // DESTROY ACTOR AND MESH
-    
+
     destroy() {
         if(this._mesh) {
             this._mesh.dispose();
         }
     }
-    
+
     pick(evt) {
         // ONLY PICK IF NOT ALREADY PICKED, OTHERWISE UNPICK
-        
+
         if(this.app._pickedActors.indexOf(this) < 0 && evt.event.ctrlKey) {
-            
+
             this.highlight();
             this.select();
 
-        } 
-        
+        }
+
         // SEND PICK EVENT
-        
+
         this.app.actors.send("pick",Object.assign({target:this},evt));
-        
+
     }
-    
+
     select(highlight = false,clearHighlights = true,add = false) {
         if(clearHighlights) {
             this.app._pickedActors.forEach(a=>{
                 a.unhighlight();
-                
+
             });
         }
-        
+
         if(highlight) {
             this.highlight();
         }
-        
+
         if(add) {
             this.app._pickedActors.push(this);
         } else {
@@ -359,7 +359,7 @@ class Actor {
             this.app.config.onActorSelected(this);
         }
     }
-    
+
     highlight(color=BABYLON.Color3.Green()) {
         this.app._pickedActors.forEach(a=>{
             this.app.hlLayer.removeMesh(a._mesh,BABYLON.Color3.Green());
@@ -369,14 +369,14 @@ class Actor {
             this.app.hlLayer.addMesh(m,color);
         });
     }
-    
+
     unhighlight() {
         this.app.hlLayer.removeMesh(this.mesh);
         this.mesh.getChildMeshes(false).forEach((m)=>{
             this.app.hlLayer.removeMesh(m);
         });
     }
-    
+
     remove() {
         if(this.mesh.getChildMeshes) {
             this.mesh.getChildMeshes(true).forEach((m)=>{
@@ -388,39 +388,39 @@ class Actor {
         }
         this.app.store.removeActor(this);
     }
-    
+
     setState(newState) {
         this._state = Object.assign(this._state,newState);
         this.changesPending();
     }
-    
+
     setLocalState(newState) {
         this._localState = Object.assign(this._localState,newState);
     }
-    
+
     // ON MESSAGE
-    
+
     on(event,scriptPath,options) {
         let onEvent = {};
         onEvent["_"+event] = {path:scriptPath,options:options?options:null};
-        
+
         this.setState(onEvent);
     }
-    
+
     // TRIGGER
-    
+
     trigger(eventName,eventData) {
 
         let event = this._state["_" + eventName];
-        
+
         if(!eventData) {
             eventData = {};
         }
 
         if(event) {
-            
+
             // RUN SCRIPT
-            
+
             let script = this.app.scripts.getScriptByPath(event.path);
             if(script) {
                 eventData.target = this;
@@ -431,9 +431,9 @@ class Actor {
         }
         return false;
     }
-    
+
     // CONVERT TEXTURE TO SERIALIZABLE
-    
+
     textureToJSON(t) {
         return {
             "name": t.name,
@@ -453,41 +453,41 @@ class Actor {
             "coordinatesIndex": t.coordinatesIndex
         };
     };
-    
+
     // SHOW HUD
-    
+
     showHUD(hud,data = {}) {
         data.target = this;
         this.app.hud.showEventHUD(this,hud,data);
     }
-    
+
     hideHUD() {
         this.app.hud.hideHUD();
     }
-    
+
     // POINTER OVER
-    
+
     onPointerMove(fn) {
-        
-        
+
+
         if(fn) {
             this.pointerMoveListener = (e) => {
                 let pickResult = this.app.scene.pick(this.app.scene.pointerX, this.app.scene.pointerY);
                 if(pickResult.pickedMesh) {
-                    
-                    
+
+
                     // TRAVEL ANCESTORS UNTIL WE FIND AN ACTOR
-                    
+
                     let currentMesh = pickResult.pickedMesh;
                     while(!currentMesh.aid && currentMesh != null) {
                         currentMesh = currentMesh.parent;
                     }
-                    
+
                     if(currentMesh) {
-                        
+
                         let actor = this.app.actors.actorsById[currentMesh.aid];
                         if(actor) {
-                            
+
                             pickResult.event = e;
                             if(actor.id == this.id) {
                                 fn(pickResult);
@@ -502,116 +502,116 @@ class Actor {
             this.pointerMoveListener = null;
         }
     }
-    
+
     changesPending() {
         this.hasChanges = true;
     }
-    
+
     clearChanges() {
         this.hasChanges = false;
     }
-    
+
     // PROPS
-    
+
     get id() {
         return this._id;
     }
-    
+
     get mesh() {
         return this._mesh?this._mesh:this.proxy;
     }
-    
+
     get name() {
         return this.mesh.name;
     }
-    
+
     set name(name) {
         this.mesh.name = name;
         this.changesPending();
     }
-    
+
     get parent() {
         return this._parent;
     }
-    
+
     set parent(parent) {
         this._parent = parent;
         this.mesh.parent = parent._mesh;
         this.changesPending();
     }
-    
+
     get state() {
         return this._state;
     }
-    
+
     get localState() {
         return this._localState;
     }
-    
+
     get priority() {
         return this._priority;
     }
-    
+
     set priority(priority) {
         this._priority = priority;
         this.changesPending();
     }
-    
+
     get visible() {
         return this.mesh.isVisible;
     }
-    
+
     set visible(_visible) {
         this.mesh.isVisible = _visible;
         this.changesPending();
     }
-    
+
     get visibility() {
         return this.mesh.visibility;
     }
-    
+
     set visibility(_visibility) {
         this.mesh.visibility = _visibility;
         this.changesPending();
     }
-    
+
     // PLACEMENT PROPS ARE WRAPPED IN WAYPOINT VECTORS TO UPDATE WAYPOINTS
-    
+
     set position(p) {
         this.proxy.position = p;
         this.posWP = null;
         this.saveWaypoint();
     }
-    
+
     get position() {
         if(!this.posWP) {
             this.posWP = new WayPointVector(this,this.proxy.position);
         }
         return this.posWP;
     }
-    
+
     set rotation(r) {
 
         this.proxy.rotation = r;
         this.rotWP = null;
         this.saveWaypoint();
     }
-    
+
     get rotation() {
-        
+
         if(!this.rotWP) {
             this.rotWP = new WayPointVector(this,this.proxy.rotation);
         }
         return this.rotWP;
     }
-    
+
     set scaling(s) {
 
         this.proxy.scaling = s;
         this.sclWP = null;
         this.saveWaypoint();
     }
-    
+
     get scaling() {
 
         if(!this.sclWP) {
@@ -619,98 +619,98 @@ class Actor {
         }
         return this.sclWP;
     }
-    
+
     // MATERIAL
-    
+
     get material() {
         return this.mesh.material;
     }
-    
+
     get diffuseColor() {
         return this.mesh.material.diffuseColor;
     }
-    
+
     set diffuseColor(c) {
         this.mesh.material.diffuseColor = c;
         this.changesPending();
     }
-    
+
     get specularColor() {
         return this.mesh.material.specularColor;
     }
-    
+
     set specularColor(c) {
         this.mesh.material.specularColor = c;
         this.changesPending();
     }
-    
+
     get emissiveColor() {
         return this.mesh.material.emissiveColor;
     }
-    
+
     set emissiveColor(c) {
         this.mesh.material.emissiveColor = c;
         this.changesPending();
     }
-    
+
     get ambientColor() {
         return this.mesh.material.ambientColor;
     }
-    
+
     set ambientColor(c) {
         this.mesh.material.ambientColor = c;
         this.changesPending();
     }
-    
+
     // COLLISION
-    
+
     get checkCollisions() {
         return this.mesh.checkCollisions;
     }
-    
+
     set checkCollisions(check) {
         this.mesh.checkCollisions = check;
         this.changesPending();
     }
-    
+
     // TEXTURE
-    
+
     get diffuseTexture() {
         return this.mesh.material.diffuseTexture;
     }
-    
+
     set diffuseTexture(t) {
         this.mesh.material.diffuseTexture = t;
         this.changesPending();
     }
-    
+
     get specularTexture() {
         return this.mesh.material.specularTexture;
     }
-    
+
     set specularTexture(t) {
         this.mesh.material.specularTexture = t;
         this.changesPending();
     }
-    
+
     get ambientTexture() {
         return this.mesh.material.ambientTexture;
     }
-    
+
     set ambientTexture(t) {
         this.mesh.material.ambientTexture = t;
         this.changesPending();
     }
-    
+
     get emissiveTexture() {
         return this.mesh.material.emissiveTexture;
     }
-    
+
     set emissiveTexture(t) {
         this.mesh.material.emissiveTexture = t;
         this.changesPending();
     }
-    
+
 }
 
 export default Actor;

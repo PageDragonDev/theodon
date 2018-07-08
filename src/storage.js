@@ -1,5 +1,5 @@
-import firebase from "firebase";
-import 'firebase/firestore';
+import { firebase } from '@firebase/app';
+import '@firebase/firestore';
 import co from "co";
 import uploadcare from 'uploadcare-widget';
 import _ from "lodash";
@@ -26,8 +26,8 @@ let Store = class {
 
         this.worldId = this.config.worldId;
         this.sceneId = this.config.sceneId;
-        
-        
+
+
         if(!this.config.firebaseApp) {
             let initConfig = Object.assign({}.this.config);
             delete initConfig.worldId;
@@ -36,7 +36,7 @@ let Store = class {
         } else {
             this.app = this.config.firebaseApp;
         }
-        
+
         this._user = config.user;
         this._admin = config.admin?config.admin:false;
         this.fetchFileDialog = this.fetchFileDialog.bind(this);
@@ -45,6 +45,7 @@ let Store = class {
     }
 
     init() {
+
         let store = this;
 
         // Authenticate Using a popup.
@@ -56,24 +57,23 @@ let Store = class {
             // GET DB
 
             let db = store.app.firestore();
-            let usersRef = db.collection("users");    
-            
-                
+            let usersRef = db.collection("users");
+
             if (!store.app.auth().currentUser) {
-                
+
                 var provider = new firebase.auth.GoogleAuthProvider();
                 provider.addScope('profile');
                 provider.addScope('email');
                 let result = yield store.app.auth().signInWithPopup(provider);
                 authUser = result.user;
                 profile = { accessToken: result.credential.accessToken, user: null };
-                
+
                 // DO WE ALREADY HAVE THIS USER?
-    
+
                 let userRef = usersRef.doc(authUser.uid);
                 let userDoc = yield userRef.get();
                 let existingUser = userDoc.exists ? userDoc.data() : null;
-                
+
                 if(existingUser) {
                     existingUser = {
                         displayName: authUser.displayName,
@@ -81,18 +81,17 @@ let Store = class {
                         photoURL: authUser.photoURL
                     };
                 }
-                
+
                 // UPDATE USER INFO
-            
+
                 yield usersRef.doc(authUser.uid).set(existingUser);
                 profile = existingUser;
-                
-            }
-            else {
+
+            } else {
                 authUser = store.app.auth().currentUser;
                 let userRef = usersRef.doc(authUser.uid);
                 let userDoc = yield userRef.get();
-                
+
                 let existingUser = userDoc.exists ? userDoc.data() : null;
                 if(!existingUser) {
                     existingUser = {
@@ -101,12 +100,12 @@ let Store = class {
                         photoURL: authUser.photoURL
                     };
                 }
-            
+
                 profile = existingUser;
             }
-            
 
-            // GET INITIALIZE INFO
+
+            // GET WROLD INFO
 
             let worldsRef = db.collection("worlds");
             let worldRef = worldsRef.doc(store.worldId);
@@ -133,7 +132,7 @@ let Store = class {
         let db = this.app.firestore();
         db.collection("scripts").where("wid", "==", this.worldId)
             .onSnapshot(function(snapshot) {
-                snapshot.docChanges.forEach(function(change) {
+                snapshot.docChanges().forEach(function(change) {
 
                     let script = change.doc.data();
                     script._id = change.doc.id;
@@ -204,7 +203,7 @@ let Store = class {
     get user() {
         return this._user;
     }
-    
+
     get admin() {
         return this._admin;
     }
@@ -246,7 +245,7 @@ let Store = class {
     }
 
     saveActor(aid, instance) {
-        
+
         // GET DB
 
         let db = this.app.firestore();
@@ -255,11 +254,11 @@ let Store = class {
         if(this.sceneId) {
             instance.sid = this.sceneId;
         }
-        
+
         console.log("Saving Actor:",instance.name,aid,instance.state?instance.state.tid?instance.state.tid:'no tid':'no tid');
 
         actorsRef.doc(aid).set(instance);
-        
+
     }
 
     removeActor(actor) {
@@ -339,15 +338,16 @@ let Store = class {
         waypoint.time = firebase.firestore.FieldValue.serverTimestamp();
         waypoint.zone = this.getZone(waypoint.position);
 
+        console.log("ADDING WAYPOINT:",waypoint)
         actorsRef.add(waypoint);
     }
 
     // WATCH ACTORS
 
     watchActors(onChange, onRemove) {
-        
+
         // LOAD ALL ACTORS AND SORT BY PRIORITY
-        
+
         let db = this.app.firestore();
         let actors = [];
         let collection;
@@ -362,29 +362,29 @@ let Store = class {
 
                 let actorDef = doc.data();
                 actorDef._id = doc.id;
-                
+
                 actors.push(actorDef);
             });
-            
+
             actors = _.sortBy(actors,"priority");
             actors.forEach(actorDef=>{
                 onChange(actorDef);
             });
-            
+
             // CALL POPULATED EVENT
-        
+
             this.theodonApp.scripts.runScript("World/Populated");
-            
+
             // CALL EXTERNAL SCENE LOADED
-            
+
             if(this.theodonApp.config.onSceneLoaded) {
                 this.theodonApp.config.onSceneLoaded(this.theodonApp);
             }
-            
+
             // WATCH FOR ACTOR CHANGES
 
             collection.onSnapshot(function(snapshot) {
-                snapshot.docChanges.forEach(function(change) {
+                snapshot.docChanges().forEach(function(change) {
 
                     let actorDef = change.doc.data();
                     actorDef._id = change.doc.id;
@@ -400,12 +400,12 @@ let Store = class {
                     }
                 });
             });
-            
-            
-        });
-        
 
-        
+
+        });
+
+
+
     }
 
     // WATCH PLACEMENTS
@@ -417,7 +417,7 @@ let Store = class {
         let db = this.app.firestore();
         db.collection("placements").where("wid", "==", this.worldId)
             .onSnapshot(function(snapshot) {
-                snapshot.docChanges.forEach(function(change) {
+                snapshot.docChanges().forEach(function(change) {
 
                     let placementDef = change.doc.data();
                     placementDef._id = change.doc.id;
@@ -442,7 +442,7 @@ let Store = class {
         let db = this.app.firestore();
         db.collection("waypoints").where("wid", "==", this.worldId)
             .onSnapshot(function(snapshot) {
-                snapshot.docChanges.forEach(function(change) {
+                snapshot.docChanges().forEach(function(change) {
 
                     let waypointDef = change.doc.data();
                     waypointDef._id = change.doc.id;
@@ -509,9 +509,9 @@ let Store = class {
     }
 
     fetchFileDialog(folder="images") {
-        
+
         return new Promise((resolve, reject) => {
-            
+
             // CREATE ELEMENT
 
             let element = document.createElement("input");
@@ -522,13 +522,13 @@ let Store = class {
             // CREATE WIDGET
 
             let widget = uploadcare.Widget('#uploadcare');
-            
+
             // SHOW DIALOG
-            
+
             widget.openDialog();
             widget.onUploadComplete((file) => {
                 element.remove();
-                
+
                 // TURN URL INTO IMAGE DATA
 
                 this.getImageData(file.cdnUrl).then(data => {

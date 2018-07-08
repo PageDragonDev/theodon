@@ -16,35 +16,35 @@ export class Actors{
         this.done = this.done.bind(this);
         this.doWhenLoaded = this.doWhenLoaded.bind(this);
         this.nearest = this.nearest.bind(this);
-        
+
         let _this = this;
-        
+
         // WATCH ACTORS
-        
+
         _this.app.store.watchActors((actorDef)=>{
             let actor = _this.addDef(actorDef);
-            
+
             let waitOn = _this.waitOn[actorDef._id];
             if(waitOn) {
                 actor.updatePlacement(waitOn);
                 delete _this.waitOn[actorDef._id];
             }
-            
+
             let doWhen = _this.whenLoaded[actorDef._id];
             if(doWhen) {
                 doWhen(actor);
                 delete _this.whenLoaded[actorDef._id];
             }
-            
+
         },(actorDef)=>{
             let actor = _this.addDef(actorDef);
             actor.destroy();
             this.actors = this.actors.filter(a=>a.id != actorDef._id);
             delete this.actorsById[actorDef._id];
-        });    
+        });
 
         // WATCH PLACEMENTS
-        
+
         this.app.store.watchPlacements((placement)=>{
             let actor = this.actorsById[placement._id];
             if(actor) {
@@ -54,34 +54,34 @@ export class Actors{
                 this.waitOn[placement._id] = placement;
             }
         });
-        
+
         // WATCH WAYPOINTS
-        
+
         this.app.store.watchWaypoints((waypoint)=>{
-            
+
             // IGNORE STALE WAYPOINTS
-            
+
             if(waypoint.time) {
                 let now = new Date().getTime();
-                let then = waypoint.time.getTime();
-                
+                let then = waypoint.time.toDate().getTime();
+
                 if(now - then > 5000) {
                     return;
                 }
             }
-            
+
             // UPDATE ACTOR
-            
+
             let actor = this.actorsById[waypoint.aid];
             if(actor) {
                 actor.updateWaypoint(waypoint);
-            } 
+            }
         });
-        
+
     }
-    
+
     // SEND EVENT
-        
+
     send(eventName,eventData) {
         console.log("SEND",eventData);
         let honored = 0;
@@ -94,13 +94,13 @@ export class Actors{
                 if(res) {honored++;}
             });
         }
-        
+
         console.info("EVENT",eventName,"HONORED",honored,honored==1?"TIME":"TIMES");
         return eventData;
     }
-    
+
     // ADD
-    
+
     add(actor) {
         let existing = this.actorsById[actor._id];
         if(!existing) {
@@ -112,14 +112,14 @@ export class Actors{
             return existing;
         }
     }
-    
+
     // ADD ACTOR TO ACTOR LIST USING A JSON DEF
-    
+
     addDef(def) {
         let existing = this.actorsById[def._id];
         if(existing) {
             // INIT IN PLACE
-            
+
             existing.init(def);
             return existing;
 
@@ -146,13 +146,13 @@ export class Actors{
             return actor;
         }
     }
-    
+
     done() {
         this.actors.forEach(a=>{
             a.done();
         });
     }
-    
+
     doWhenLoaded(aid,fn) {
         let actor = this.actorsById[aid];
         if(actor) {
@@ -161,16 +161,16 @@ export class Actors{
             this.whenLoaded[aid] = fn;
         }
     }
-    
+
     nearest(name,to) {
         if(!to) {
             console.warn("nearest() 'to' not defined.");
             return null;
         }
-        
+
         let closestActor = null;
         let closestDistance = 9999999999;
-        
+
         this.actors.forEach(actor=>{
             let d = BABYLON.Vector3.Distance(to,actor.position);
             if(actor.name.toLowerCase() == name.toLowerCase() && d < closestDistance) {
@@ -178,16 +178,16 @@ export class Actors{
                 closestActor = actor;
             }
         });
-        
+
         return closestActor;
     }
-    
+
     findByTID(tid) {
         return this.actors.find(a=>a.state.tid == tid);
     }
-    
+
     named(name) {
         return this.actors.filter(a=>a.name == name);
     }
-    
+
 }
