@@ -1,6 +1,3 @@
-import { firebase } from '@firebase/app';
-import '@firebase/firestore';
-import co from "co";
 import uploadcare from 'uploadcare-widget';
 import _ from "lodash";
 
@@ -26,17 +23,6 @@ let Store = class {
 
         this.worldId = this.config.worldId;
         this.sceneId = this.config.sceneId;
-
-
-        if(!this.config.firebaseApp) {
-            let initConfig = Object.assign({}.this.config);
-            delete initConfig.worldId;
-            delete initConfig.sceneId;
-            this.app = firebase.initializeApp(this.config, instanceId);
-        } else {
-            this.app = this.config.firebaseApp;
-        }
-
         this._user = config.user;
         this._admin = config.admin?config.admin:false;
         this.fetchFileDialog = this.fetchFileDialog.bind(this);
@@ -44,158 +30,39 @@ let Store = class {
 
     }
 
-    init() {
-
-        let store = this;
-
-        // Authenticate Using a popup.
-
-        return co(function*() {
-            let profile;
-            let authUser;
-
-            // GET DB
-
-            let db = store.app.firestore();
-            let usersRef = db.collection("users");
-
-            if (!store.app.auth().currentUser) {
-
-                var provider = new firebase.auth.GoogleAuthProvider();
-                provider.addScope('profile');
-                provider.addScope('email');
-                let result = yield store.app.auth().signInWithPopup(provider);
-                authUser = result.user;
-                profile = { accessToken: result.credential.accessToken, user: null };
-
-                // DO WE ALREADY HAVE THIS USER?
-
-                let userRef = usersRef.doc(authUser.uid);
-                let userDoc = yield userRef.get();
-                let existingUser = userDoc.exists ? userDoc.data() : null;
-
-                if(existingUser) {
-                    existingUser = {
-                        displayName: authUser.displayName,
-                        email: authUser.email,
-                        photoURL: authUser.photoURL
-                    };
-                }
-
-                // UPDATE USER INFO
-
-                yield usersRef.doc(authUser.uid).set(existingUser);
-                profile = existingUser;
-
-            } else {
-                authUser = store.app.auth().currentUser;
-                let userRef = usersRef.doc(authUser.uid);
-                let userDoc = yield userRef.get();
-
-                let existingUser = userDoc.exists ? userDoc.data() : null;
-                if(!existingUser) {
-                    existingUser = {
-                        displayName: authUser.displayName,
-                        email: authUser.email,
-                        photoURL: authUser.photoURL
-                    };
-                }
-
-                profile = existingUser;
-            }
-
-
-            // GET WROLD INFO
-
-            let worldsRef = db.collection("worlds");
-            let worldRef = worldsRef.doc(store.worldId);
-            let worldDoc = yield worldRef.get();
-
-            store.worldProfile = worldDoc.exists ? worldDoc.data() : null;
-            if (store.worldProfile) {
-                store.worldProfile.id = store.worldId;
-            }
-            if(!store._user) {
-                store._user = profile;
-            }
-            console.log("THEODON USER:",store._user);
-
-        });
-    }
-
     // LOAD WORLD SCRIPTS
 
     watchWorldScripts(onChange, onRemove) {
 
-        // WATCH SCRIPTS
+        if (this.config.watchWorldScripts) {
+            this.config.watchWorldScripts(onChange, onRemove);
+        } else {
+            console.warn("No world script watcher function set at config.watchWorldScripts");
+        }
 
-        let db = this.app.firestore();
-        db.collection("scripts").where("wid", "==", this.worldId)
-            .onSnapshot(function(snapshot) {
-                snapshot.docChanges().forEach(function(change) {
-
-                    let script = change.doc.data();
-                    script._id = change.doc.id;
-
-                    if (change.type === "added") {
-                        onChange(script);
-                    }
-                    if (change.type === "modified") {
-                        onChange(script);
-                    }
-                    if (change.type === "removed") {
-                        onRemove(script);
-                    }
-                });
-            });
     }
 
     // ADD/SAVE WORLD SCRIPT
 
     saveWorldScript(path, code, sid) {
-        // GET DB
 
-        let db = this.app.firestore();
-
-        // SCRIPT RECORD
-
-        let pathParts = path.split('/');
-        let script = {
-            name: pathParts[pathParts.length - 1],
-            path: path,
-            code: code,
-            wid: this.worldId
-        };
-
-        // STORE
-
-        let scriptsRef = db.collection("scripts");
-        let scriptRef;
-        if (sid) {
-            scriptRef = scriptsRef.doc(sid);
-        }
-        else {
-            scriptRef = scriptsRef.doc();
+        if (this.config.saveWorldScript) {
+            return this.config.saveWorldScript(path, code, sid);
+        } else {
+            console.warn("No save world script function set at config.saveWorldScript");
         }
 
-        return co(function*() {
-            try {
-                yield scriptRef.set(script);
-                return true;
-            }
-            catch (e) {
-                console.error(e);
-                return false;
-            }
-        });
     }
 
     // REMOVE SCRIPT
 
     removeWorldScript(script) {
-        let db = this.app.firestore();
-        let scriptsRef = db.collection("scripts").doc(script._id);
-        scriptsRef.delete();
+
+        if (this.config.removeWorldScript) {
+            this.config.removeWorldScript(script);
+        } else {
+            console.warn("No remove world script function set at config.removeWorldScript");
+        }
     }
 
     // GETTER FOR USER PROFILE
@@ -208,203 +75,56 @@ let Store = class {
         return this._admin;
     }
 
-    // SAVE COLLECTION/OBJECT VALUE
-
-    save(collection, id, field, value) {
-
-        // GET DB
-
-        let db = this.app.firestore();
-
-        // STORE
-
-        let collectionRef = db.collection(collection);
-        let docRef = collectionRef.doc(id);
-        let update = {};
-
-        // EXPAND OUT DOT NOTATION
-
-        let parts = field.split('.');
-        let next = update;
-
-        parts.forEach((part, idx) => {
-
-            if (idx < parts.length - 1) {
-                next[part] = {};
-                next = next[part];
-            }
-            else {
-                next[part] = value;
-            }
-        });
-
-
-        return co(function*() {
-            yield docRef.set(update, { merge: true });
-        });
-    }
-
     saveActor(aid, instance) {
 
-        // GET DB
-
-        let db = this.app.firestore();
-        let actorsRef = db.collection("actors");
-        instance.wid = this.worldId;
-        if(this.sceneId) {
-            instance.sid = this.sceneId;
+        if (this.config.saveActor) {
+            this.config.saveActor(aid, instance);
+        } else {
+            console.warn("No save actor function set at config.saveActor");
         }
-
-        console.log("Saving Actor:",instance.name,aid,instance.state?instance.state.tid?instance.state.tid:'no tid':'no tid');
-
-        actorsRef.doc(aid).set(instance);
 
     }
 
     removeActor(actor) {
-        // GET DB
 
-        let db = this.app.firestore();
-
-        // DELETE ACTOR
-
-        let actorsRef = db.collection("actors").doc(actor.id);
-        actorsRef.delete().then(function() {
-            console.log("Actor successfully deleted!");
-        }).catch(function(error) {
-            console.error("Actor removing document: ", error);
-        });
-
-        // DELETE PLACEMENT
-
-        let placementRef = db.collection("placements").doc(actor.id);
-        placementRef.delete();
-
-        // DELETE WAYPOINTS
-
-        let query = db.collection("waypoints").where("aid", "==", actor.id);
-        query.get().then((snapshot) => {
-            // When there are no documents left, we are done
-            if (snapshot.size == 0) {
-                return 0;
-            }
-
-            // Delete documents in a batch
-            var batch = db.batch();
-            snapshot.docs.forEach(function(doc) {
-                batch.delete(doc.ref);
-            });
-
-            return batch.commit().then(function() {
-                return snapshot.size;
-            });
-        });
-
-    }
-
-    // CALC ZONE
-
-    getZone(p) {
-        return { x: Math.floor(p.x / 10), y: Math.floor(p.y / 10), z: Math.floor(p.z / 10) };
+        if (this.config.removeActor) {
+            this.config.removeActor(actor);
+        } else {
+            console.warn("No remove actor function set at config.removeActor");
+        }
     }
 
     // SAVE A FIXED PLACEMENT
 
     savePlacement(actor, placement) {
 
-        // GET DB
-
-        let db = this.app.firestore();
-        let actorsRef = db.collection("placements");
-        placement.wid = this.worldId;
-        placement.time = firebase.firestore.FieldValue.serverTimestamp();
-        placement.zone = this.getZone(placement.position);
-
-        return co(function*() {
-            yield actorsRef.doc(actor.id).set(placement);
-        });
+        if (this.config.savePlacement) {
+            this.config.savePlacement(actor, placement);
+        } else {
+            console.warn("No save placement function set at config.savePlacement");
+        }
     }
 
     // SAVE A WAYPOINT
 
     saveWaypoint(actor, waypoint) {
 
-        // GET DB
-
-        let db = this.app.firestore();
-        let actorsRef = db.collection("waypoints");
-        waypoint.wid = this.worldId;
-        waypoint.aid = actor.id;
-        waypoint.time = firebase.firestore.FieldValue.serverTimestamp();
-        waypoint.zone = this.getZone(waypoint.position);
-
-        console.log("ADDING WAYPOINT:",waypoint)
-        actorsRef.add(waypoint);
+        if (this.config.saveWaypoint) {
+            this.config.saveWaypoint(actor, waypoint);
+        } else {
+            console.warn("No save waypoint function set at config.saveWaypoint");
+        }
     }
 
     // WATCH ACTORS
 
     watchActors(onChange, onRemove) {
 
-        // LOAD ALL ACTORS AND SORT BY PRIORITY
-
-        let db = this.app.firestore();
-        let actors = [];
-        let collection;
-        if(this.sceneId) {
-            collection = db.collection("actors").where("wid", "==", this.worldId).where("sid", "==", this.sceneId);
+        if (this.config.watchActors) {
+            this.config.watchActors(onChange, onRemove);
         } else {
-            collection = db.collection("actors").where("wid", "==", this.worldId);
+            console.warn("No watch actors function set at config.watchActors");
         }
-        collection.get()
-        .then(querySnapshot => {
-            querySnapshot.forEach(function(doc) {
-
-                let actorDef = doc.data();
-                actorDef._id = doc.id;
-
-                actors.push(actorDef);
-            });
-
-            actors = _.sortBy(actors,"priority");
-            actors.forEach(actorDef=>{
-                onChange(actorDef);
-            });
-
-            // CALL POPULATED EVENT
-
-            this.theodonApp.scripts.runScript("World/Populated");
-
-            // CALL EXTERNAL SCENE LOADED
-
-            if(this.theodonApp.config.onSceneLoaded) {
-                this.theodonApp.config.onSceneLoaded(this.theodonApp);
-            }
-
-            // WATCH FOR ACTOR CHANGES
-
-            collection.onSnapshot(function(snapshot) {
-                snapshot.docChanges().forEach(function(change) {
-
-                    let actorDef = change.doc.data();
-                    actorDef._id = change.doc.id;
-
-                    if (change.type === "added") {
-                        onChange(actorDef);
-                    }
-                    if (change.type === "modified") {
-                        onChange(actorDef);
-                    }
-                    if (change.type === "removed") {
-                        onRemove(actorDef);
-                    }
-                });
-            });
-
-
-        });
-
-
 
     }
 
@@ -412,74 +132,31 @@ let Store = class {
 
     watchPlacements(onChange) {
 
-        // WATCH SCRIPTS
-
-        let db = this.app.firestore();
-        db.collection("placements").where("wid", "==", this.worldId)
-            .onSnapshot(function(snapshot) {
-                snapshot.docChanges().forEach(function(change) {
-
-                    let placementDef = change.doc.data();
-                    placementDef._id = change.doc.id;
-
-                    if (change.type === "added") {
-                        onChange(placementDef);
-                    }
-                    if (change.type === "modified") {
-                        onChange(placementDef);
-                    }
-
-                });
-            });
+        if (this.config.watchPlacements) {
+            this.config.watchPlacements(onChange);
+        } else {
+            console.warn("No watch placements function set at config.watchPlacements");
+        }
     }
 
     // WATCH WAYPOINT
 
     watchWaypoints(onChange) {
 
-        // WATCH SCRIPTS
-
-        let db = this.app.firestore();
-        db.collection("waypoints").where("wid", "==", this.worldId)
-            .onSnapshot(function(snapshot) {
-                snapshot.docChanges().forEach(function(change) {
-
-                    let waypointDef = change.doc.data();
-                    waypointDef._id = change.doc.id;
-
-                    if (change.type === "added") {
-                        onChange(waypointDef);
-                    }
-                    if (change.type === "modified") {
-                        onChange(waypointDef);
-                    }
-                });
-            });
+        if (this.config.watchWaypoints) {
+            this.config.watchWaypoints(onChange);
+        } else {
+            console.warn("No watch waypoints function set at config.watchWaypoints");
+        }
     }
 
     clearWaypoints(actor, time) {
 
-        let db = this.app.firestore();
-        let query = db.collection("waypoints");
-        query.where("aid", "==", actor.id);
-        query.where("time", "<=", time);
-
-        query.get().then((snapshot) => {
-            // When there are no documents left, we are done
-            if (snapshot.size == 0) {
-                return 0;
-            }
-
-            // Delete documents in a batch
-            var batch = db.batch();
-            snapshot.docs.forEach(function(doc) {
-                batch.delete(doc.ref);
-            });
-
-            return batch.commit().then(function() {
-                return snapshot.size;
-            });
-        });
+        if (this.config.clearWaypoints) {
+            this.config.clearWaypoints(actor, time);
+        } else {
+            console.warn("No clear waypoints function set at config.clearWaypoints");
+        }
     }
 
     getImageData(url) {
