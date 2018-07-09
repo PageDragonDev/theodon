@@ -211,9 +211,9 @@ let Store = class {
                 this.getImageData(file.cdnUrl).then(data => {
                     // STORE IMAGE
 
-                    let ref = this.app.storage().ref();
                     let imagePath = folder + '/' + file.name;
 
+                    let ref = this.app.storage().ref();
                     let imageRef = ref.child(imagePath);
                     imageRef.putString(data, 'data_url').then(result => {
                         let fullPath = result.metadata.downloadURLs[0];
